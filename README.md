@@ -17,6 +17,10 @@
 - [查看详情 →](skills/pdf-to-image-preview/SKILL.md)
 安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill pdf-to-image-preview
 
+###  juejin-article-trends
+**掘金热门文章** - 支持获取掘金热门文章列表
+安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill juejin-article-trends
+
 ## 🚀 技能安装
 
 - 使用npx命令：
