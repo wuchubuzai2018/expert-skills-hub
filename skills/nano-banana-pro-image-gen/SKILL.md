@@ -1,0 +1,160 @@
+---
+name: nano-banana-pro-image-gen
+description: 图片生成技能，当用户需要生成图片、创建图像、编辑/修改/调整已有图片时使用此技能。支持10种图片比例（1:1、16:9、9:16等）和3种分辨率（1K、2K、4K），支持文生图和图生图编辑。
+---
+
+# 图片生成与编辑
+
+图片生成技能，可以通过自然语言帮助用户生成图片，通过API易国内代理服务访问。
+
+## 使用指引
+
+遵循以下步骤：
+
+### 第1步：分析需求与参数提取
+1. **明确意图**：区分用户是需要【文生图】（生成新图片）还是【图生图】（编辑/修改现有图片）。
+2. **提取关键参数**：
+   - **Prompt（必需）**：提取具体的图片原始需求描述或编辑修改指令，需要中文提示词。
+   - **Filename（必需）**：根据内容生成合理的文件名（例如 `cat_in_garden.png`），避免使用通用名。
+   - **Aspect Ratio（可选）**：根据用户描述推断比例。例如：
+     - "手机壁纸" -> `9:16`
+     - "电脑壁纸/视频封面" -> `16:9`
+     - "头像" -> `1:1`
+     - 默认不指定图片比例，保持图片比例为空。
+   - **Resolution（可选）**：
+     - 一般用途使用 `1K`（默认）。
+     - 用户强调"高清"、"大图"时使用 `2K`。
+     - 仅在极端高清需求下使用 `4K`（生成较慢）。
+     - **注意**：参数值必须大写（`1K`, `2K`, `4K`）。
+
+### 第2步：环境检查与命令执行
+1. **检查环境**：确认 `APIYI_API_KEY` 环境变量是否已设置（通常假定已设置，若运行失败再提示用户）。
+2. **构建并运行命令**：
+   - 确保 `scripts/generate_image.py` 路径正确（通常是相对于工作区根目录）。
+   
+   **文生图命令模板：**
+   ```bash
+   python scripts/generate_image.py --prompt "{prompt}" --filename "{filename}" --aspect-ratio {ratio} --resolution {res}
+   ```
+
+   **图生图命令模板：**
+   ```bash
+   python scripts/generate_image.py --prompt "{edit_instruction}" --input-image "{input_path}" --filename "{output_filename}" --resolution {res}
+   ```
+
+### 第3步：结果反馈
+1. **执行反馈**：等待终端命令执行完毕。
+2. **成功**：告知用户图片已生成，并指出保存路径。
+3. **失败**：
+   - 若提示 API Key 缺失，请指导用户设置环境变量。
+   - 若提示网络错误，建议用户检查网络或稍后重试。
+
+## 命令行使用样例
+
+### 生成新图片
+
+```bash
+python scripts/generate_image.py --prompt "图片描述文本" --filename "output.png" [--aspect-ratio 1:1] [--resolution 1K]
+```
+
+**示例：**
+```bash
+# 基础生成
+python scripts/generate_image.py --prompt "一只可爱的橘猫在草地上玩耍" --filename "cat.png"
+
+# 指定比例和分辨率
+python scripts/generate_image.py --prompt "日落山脉风景" --filename "sunset.png" --aspect-ratio 16:9 --resolution 4K
+
+# 竖版高清图片（适合手机壁纸）
+python scripts/generate_image.py --prompt "城市夜景" --filename "city.png" --aspect-ratio 9:16 --resolution 2K
+```
+
+### 编辑已有图片
+
+```bash
+python scripts/generate_image.py --prompt "编辑指令" --filename "output.png" --input-image "path/to/input.png" [--aspect-ratio 1:1] [--resolution 1K]
+```
+
+**示例：**
+```bash
+# 修改风格
+python scripts/generate_image.py --prompt "将图片转换成水彩画风格" --filename "watercolor.png" --input-image "original.png"
+
+# 添加元素
+python scripts/generate_image.py --prompt "在天空添加彩虹" --filename "rainbow.png" --input-image "landscape.png" --resolution 2K
+
+# 替换背景
+python scripts/generate_image.py --prompt "将背景换成海滩" --filename "beach-bg.png" --input-image "portrait.png" --aspect-ratio 3:4
+```
+
+## 参考资料
+- 常见使用场景文档：references/scene.md
+
+
+## 图片参数说明
+
+### aspect_ratio - 图片比例
+
+支持以下10种比例：
+
+| 比例 | 方向 | 适用场景 |
+|------|------|----------|
+| 1:1 | 正方形 | 头像、Instagram帖子 |
+| 16:9 | 横版 | YouTube缩略图、桌面壁纸、演示文稿 |
+| 9:16 | 竖版 | 抖音/TikTok、Instagram Stories、手机壁纸 |
+| 4:3 | 横版 | 经典照片、演示文稿 |
+| 3:4 | 竖版 | Pinterest、人像摄影 |
+| 3:2 | 横版 | 单反相机标准、印刷媒体 |
+| 2:3 | 竖版 | 人像海报 |
+| 5:4 | 横版 | 大幅面打印、艺术印刷 |
+| 4:5 | 竖版 | Instagram帖子、社交媒体 |
+| 21:9 | 超宽 | 电影感、横幅、全景 |
+
+### resolution - 图片分辨率
+
+1K、2K、4K三种分辨率选项
+**注意：** 分辨率值必须大写（1K、2K、4K），小写会默认使用1K
+**默认：** 1K
+
+## 注意事项
+
+- API密钥必须设置，可通过环境变量或命令行参数提供
+- 分辨率参数必须大写（1K/2K/4K），小写会默认使用1K
+- 图片生成时间：1K约12-15秒，2K约15-18秒，4K约20-25秒
+- 编辑图片时，输入图片会自动转换为base64编码
+- 确保输出目录有写入权限
+
+### API Key设置与获取
+
+#### 如何获取API Key
+
+如果你还没有API密钥，请前往 **https://api.apiyi.com** 注册账号并申请API Key。
+
+获取步骤：
+1. 访问 https://api.apiyi.com
+2. 注册/登录你的账号
+3. 在控制台中创建API密钥
+4. 复制密钥并设置环境变量或在命令行中使用
+
+#### 设置API Key
+
+脚本按以下顺序查找API密钥：
+1. `--api-key` 命令行参数（临时使用）
+2. `APIYI_API_KEY` 环境变量（推荐）
+
+**设置环境变量（推荐）：**
+```bash
+# Linux/Mac
+export APIYI_API_KEY="your-api-key-here"
+
+# Windows CMD
+set APIYI_API_KEY=your-api-key-here
+
+# Windows PowerShell
+在我的电脑中设置环境变量:$env:APIYI_API_KEY="your-api-key-here"
+```
+
+**命令行参数方式（临时）：**
+```bash
+python scripts/generate_image.py --prompt "一只猫" --api-key "your-api-key-here"
+```
