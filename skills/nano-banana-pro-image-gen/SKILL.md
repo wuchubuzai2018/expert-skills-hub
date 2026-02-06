@@ -5,7 +5,7 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
 
 # 图片生成与编辑
 
-图片生成技能，可以通过自然语言帮助用户生成图片，通过API易国内代理服务访问。
+图片生成技能，可以通过自然语言帮助用户生成图片，通过API易国内代理服务访问，支持Node.js和Python两种运行环境。
 
 ## 使用指引
 
@@ -39,6 +39,7 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
 1. **检查环境**：确认 `APIYI_API_KEY` 环境变量是否已设置（通常假定已设置，若运行失败再提示用户）。
 2. **构建并运行命令**：
    - 确保 `scripts/generate_image.py` 路径正确（通常是相对于工作区根目录）。
+   - 如果用户环境没有安装 Python，但安装了 Node.js，可以使用同目录下的 `scripts/generate_image.js`（参数与 Python 脚本保持一致）。
    
    **文生图命令模板：**
    ```bash
@@ -48,6 +49,12 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
    **图生图命令模板：**
    ```bash
    python scripts/generate_image.py -p "{edit_instruction}" -i "{input_path}" -f "{output_filename}" [-r {res}]
+   ```
+
+   **（可选）Node.js 版本命令模板（无 Python 环境）**：
+   ```bash
+   node scripts/generate_image.js -p "{prompt}" -f "{filename}" [-a {ratio}] [-r {res}]
+   node scripts/generate_image.js -p "{edit_instruction}" -i "{input_path}" -f "{output_filename}" [-r {res}]
    ```
 
 ### 第3步：结果反馈
@@ -77,6 +84,15 @@ python scripts/generate_image.py -p "日落山脉风景" -f "sunset.png" -a 16:9
 python scripts/generate_image.py -p "城市夜景" -f "city.png" -a 9:16 -r 2K
 ```
 
+**（可选）Node.js 版本示例：**
+```bash
+# 基础生成
+node scripts/generate_image.js -p "一只可爱的橘猫在草地上玩耍" -f "cat.png"
+
+# 指定比例和分辨率
+node scripts/generate_image.js -p "日落山脉风景" -f "sunset.png" -a 16:9 -r 4K
+```
+
 ### 编辑已有图片
 
 ```bash
@@ -95,7 +111,16 @@ python scripts/generate_image.py -p "在天空添加彩虹" -f "rainbow.png" -i 
 python scripts/generate_image.py -p "将背景换成海滩" -f "beach-bg.png" -i "portrait.png" -a 3:4
 ```
 
-## 参考资料
+**（可选）Node.js 版本示例：**
+```bash
+# 修改风格
+node scripts/generate_image.js -p "将图片转换成水彩画风格" -f "watercolor.png" -i "original.png"
+
+# 多张参考图（最多14张）
+node scripts/generate_image.js -p "参考多张图片融合风格" -i ref1.png ref2.png ref3.png -f "merged.png"
+```
+
+## 附加资源
 - 常见使用场景文档：references/scene.md
 
 
@@ -156,7 +181,7 @@ python scripts/generate_image.py -p "将背景换成海滩" -f "beach-bg.png" -i
 export APIYI_API_KEY="your-api-key-here"
 
 # Windows CMD
-set APIYI_API_KEY=your-api-key-here
+我的电脑高级设置中设置环境变量或者执行set APIYI_API_KEY=your-api-key-here
 
 # Windows PowerShell
 在我的电脑中设置环境变量:$env:APIYI_API_KEY="your-api-key-here"
