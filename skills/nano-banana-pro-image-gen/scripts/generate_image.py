@@ -189,7 +189,7 @@ def generate_image(
     print(f"输出请求参数: {json.dumps(payload_log, indent=2, ensure_ascii=False)}")
     print(f"image generation in progress...")
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=120)
+        response = requests.post(url, headers=headers, json=payload, timeout=400)
         response.raise_for_status()
 
         data = response.json()
