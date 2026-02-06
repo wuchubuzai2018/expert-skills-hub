@@ -10,11 +10,12 @@
 - 3种分辨率（1K/2K/4K）
 - 使用API易代理服务
 - [查看详情 →](skills/nano-banana-pro-image-gen/SKILL.md)
+安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill nano-banana-pro-image-gen
 
 ###  pdf-to-image-preview
 **PDF文件转图片** - 支持PDF文件转换为图片
 - [查看详情 →](skills/pdf-to-image-preview/SKILL.md)
-
+安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill pdf-to-image-preview
 
 ## 🚀 技能安装
 
