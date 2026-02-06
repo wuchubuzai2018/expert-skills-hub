@@ -253,15 +253,15 @@ def main():
 使用示例:
 
 【生成新图片】
-  python generate_image.py --prompt "一只可爱的橘猫"
-  python generate_image.py --prompt "日落山脉" --aspect-ratio 16:9 --resolution 4K
-  python generate_image.py --prompt "城市夜景" --aspect-ratio 9:16 --resolution 2K -o wallpaper.png
+    python generate_image.py -p "一只可爱的橘猫"
+    python generate_image.py -p "日落山脉" -a 16:9 -r 4K
+    python generate_image.py -p "城市夜景" -a 9:16 -r 2K -f wallpaper.png
 
 【编辑已有图片】
-  python generate_image.py --prompt "转换成油画风格" --input-image original.png
-  python generate_image.py --prompt "添加彩虹到天空" --input-image photo.jpg -o edited.png
-  python generate_image.py --prompt "将背景换成海滩" --input-image portrait.png --aspect-ratio 3:4 --resolution 2K
-    python generate_image.py --prompt "参考多张图片融合风格" --input-image ref1.png ref2.png ref3.png -o merged.png
+    python generate_image.py -p "转换成油画风格" -i original.png
+    python generate_image.py -p "添加彩虹到天空" -i photo.jpg -f edited.png
+    python generate_image.py -p "将背景换成海滩" -i portrait.png -a 3:4 -r 2K
+    python generate_image.py -p "参考多张图片融合风格" -i ref1.png ref2.png ref3.png -f merged.png
 
 【支持的参数值】
   --aspect-ratio: 可选 (1:1, 16:9, 9:16, 4:3, 3:4, 3:2, 2:3, 5:4, 4:5, 21:9)
@@ -275,7 +275,7 @@ def main():
     parser.add_argument("--prompt", "-p", required=True, help="图片描述或编辑指令文本")
     parser.add_argument(
         "--filename",
-        "-o",
+        "-f",
         default=None,
         help="输出图片路径 (默认: 自动生成时间戳文件名)",
     )

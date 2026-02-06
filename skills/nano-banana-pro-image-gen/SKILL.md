@@ -34,12 +34,12 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
    
    **文生图命令模板：**
    ```bash
-   python scripts/generate_image.py --prompt "{prompt}" --filename "{filename}" --aspect-ratio {ratio} --resolution {res}
+   python scripts/generate_image.py -p "{prompt}" -f "{filename}" [-a {ratio}] [-r {res}]
    ```
 
    **图生图命令模板：**
    ```bash
-   python scripts/generate_image.py --prompt "{edit_instruction}" --input-image "{input_path}" --filename "{output_filename}" --resolution {res}
+   python scripts/generate_image.py -p "{edit_instruction}" -i "{input_path}" -f "{output_filename}" [-r {res}]
    ```
 
 ### 第3步：结果反馈
@@ -54,37 +54,37 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
 ### 生成新图片
 
 ```bash
-python scripts/generate_image.py --prompt "图片描述文本" --filename "output.png" [--aspect-ratio 1:1] [--resolution 1K]
+python scripts/generate_image.py -p "图片描述文本" -f "output.png" [-a 1:1] [-r 1K]
 ```
 
 **示例：**
 ```bash
 # 基础生成
-python scripts/generate_image.py --prompt "一只可爱的橘猫在草地上玩耍" --filename "cat.png"
+python scripts/generate_image.py -p "一只可爱的橘猫在草地上玩耍" -f "cat.png"
 
 # 指定比例和分辨率
-python scripts/generate_image.py --prompt "日落山脉风景" --filename "sunset.png" --aspect-ratio 16:9 --resolution 4K
+python scripts/generate_image.py -p "日落山脉风景" -f "sunset.png" -a 16:9 -r 4K
 
 # 竖版高清图片（适合手机壁纸）
-python scripts/generate_image.py --prompt "城市夜景" --filename "city.png" --aspect-ratio 9:16 --resolution 2K
+python scripts/generate_image.py -p "城市夜景" -f "city.png" -a 9:16 -r 2K
 ```
 
 ### 编辑已有图片
 
 ```bash
-python scripts/generate_image.py --prompt "编辑指令" --filename "output.png" --input-image "path/to/input.png" [--aspect-ratio 1:1] [--resolution 1K]
+python scripts/generate_image.py -p "编辑指令" -f "output.png" -i "path/to/input.png" [-a 1:1] [-r 1K]
 ```
 
 **示例：**
 ```bash
 # 修改风格
-python scripts/generate_image.py --prompt "将图片转换成水彩画风格" --filename "watercolor.png" --input-image "original.png"
+python scripts/generate_image.py -p "将图片转换成水彩画风格" -f "watercolor.png" -i "original.png"
 
 # 添加元素
-python scripts/generate_image.py --prompt "在天空添加彩虹" --filename "rainbow.png" --input-image "landscape.png" --resolution 2K
+python scripts/generate_image.py -p "在天空添加彩虹" -f "rainbow.png" -i "landscape.png" -r 2K
 
 # 替换背景
-python scripts/generate_image.py --prompt "将背景换成海滩" --filename "beach-bg.png" --input-image "portrait.png" --aspect-ratio 3:4
+python scripts/generate_image.py -p "将背景换成海滩" -f "beach-bg.png" -i "portrait.png" -a 3:4
 ```
 
 ## 参考资料
@@ -156,5 +156,5 @@ set APIYI_API_KEY=your-api-key-here
 
 **命令行参数方式（临时）：**
 ```bash
-python scripts/generate_image.py --prompt "一只猫" --api-key "your-api-key-here"
+python scripts/generate_image.py -p "一只猫" -k "your-api-key-here"
 ```
