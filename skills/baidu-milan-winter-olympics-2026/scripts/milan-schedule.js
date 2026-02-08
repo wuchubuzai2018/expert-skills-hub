@@ -297,6 +297,49 @@ async function getAvailableDates() {
 }
 
 /**
+ * 获取今天的日期字符串（YYYY-MM-DD）
+ * @returns {string} 今天的日期
+ */
+function getTodayDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * 获取明天的日期字符串（YYYY-MM-DD）
+ * @returns {string} 明天的日期
+ */
+function getTomorrowDate() {
+  const now = new Date();
+  now.setDate(now.getDate() + 1);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * 获取今天的赛程（综合TAB下全部赛程）
+ * @returns {Promise<Array>} 今天的赛程数组
+ */
+async function getTodaySchedule() {
+  const today = getTodayDate();
+  return getAllSchedule(today);
+}
+
+/**
+ * 获取明天的赛程（综合TAB下全部赛程）
+ * @returns {Promise<Array>} 明天的赛程数组
+ */
+async function getTomorrowSchedule() {
+  const tomorrow = getTomorrowDate();
+  return getAllSchedule(tomorrow);
+}
+
+/**
  * 主函数 - 处理命令行参数
  */
 async function main() {
@@ -348,7 +391,23 @@ async function main() {
         console.log(JSON.stringify(dates, null, 2));
         break;
       }
-      
+
+      case 'today':
+      case '--today':
+      case '-t': {
+        const schedules = await getTodaySchedule();
+        console.log(JSON.stringify(schedules, null, 2));
+        break;
+      }
+
+      case 'tomorrow':
+      case '--tomorrow':
+      case '-m': {
+        const schedules = await getTomorrowSchedule();
+        console.log(JSON.stringify(schedules, null, 2));
+        break;
+      }
+
       default:
         console.log(`
 2026年米兰冬奥会赛程获取工具
@@ -357,21 +416,29 @@ async function main() {
   node milan-schedule.js <command> [options]
 
 命令:
-  all, -a, --all [date]     获取全部赛程
-  china, -c, --china [date] 获取中国相关赛程
-  gold, -g, --gold [date]   获取金牌赛赛程
-  hot, -h, --hot [date]     获取热门赛程
-  dates, -d, --dates        获取可用的日期列表
+  all, -a, --all [date]         获取全部赛程
+  china, -c, --china [date]     获取中国相关赛程
+  gold, -g, --gold [date]       获取金牌赛赛程
+  hot, -h, --hot [date]         获取热门赛程
+  today, -t, --today            获取今天的赛程（无需指定日期）
+  tomorrow, -m, --tomorrow      获取明天的赛程（无需指定日期）
+  dates, -d, --dates            获取可用的日期列表
 
 参数:
-  date    日期过滤，格式：2026-02-08（可选）
+  date    日期过滤，格式：2026-02-08（可选，除today/tomorrow外）
 
 示例:
   # 获取全部赛程
   node milan-schedule.js all
 
-  # 获取今天的赛程
+  # 获取特定日期的赛程
   node milan-schedule.js all 2026-02-08
+
+  # 获取今天的赛程
+  node milan-schedule.js today
+
+  # 获取明天的赛程
+  node milan-schedule.js tomorrow
 
   # 获取中国相关赛程
   node milan-schedule.js china
@@ -391,12 +458,14 @@ async function main() {
 }
 
 // 导出模块供其他脚本使用
-module.exports = { 
-  getAllSchedule, 
-  getChinaSchedule, 
-  getGoldSchedule, 
+module.exports = {
+  getAllSchedule,
+  getChinaSchedule,
+  getGoldSchedule,
   getHotSchedule,
-  getAvailableDates 
+  getAvailableDates,
+  getTodaySchedule,
+  getTomorrowSchedule
 };
 
 // 如果直接运行此脚本

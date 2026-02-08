@@ -173,6 +173,22 @@ node scripts/milan-schedule.js gold 2026-02-08
 node scripts/milan-schedule.js hot
 ```
 
+### 获取今天的赛程（综合TAB）
+
+自动获取今天日期的全部赛程，无需手动指定日期：
+
+```bash
+node scripts/milan-schedule.js today
+```
+
+### 获取明天的赛程（综合TAB）
+
+自动获取明天日期的全部赛程，无需手动指定日期：
+
+```bash
+node scripts/milan-schedule.js tomorrow
+```
+
 ### 获取可用的日期列表
 
 ```bash
@@ -201,6 +217,11 @@ node scripts/milan-schedule.js dates
 | participant | string | 参赛类型（单人/团体） |
 | detailUrl | string | 详情页面URL |
 | iconArr | array | 图标标签数组 |
+
+## 作者介绍
+
+- 爱海贼的无处不在
+- 我的微信公众号：无处不在的技术
 
 ## 注意事项
 

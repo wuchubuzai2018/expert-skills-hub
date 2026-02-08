@@ -104,3 +104,7 @@ const categories = await getCategories();
 // 获取文章
 const articles = await getArticles('6809637769959178254', 'hot', 10);
 ```
+## 作者介绍
+
+- 爱海贼的无处不在
+- 我的微信公众号：无处不在的技术

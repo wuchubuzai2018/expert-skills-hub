@@ -219,3 +219,8 @@ export APIYI_API_KEY="your-api-key-here"
 ```bash
 python scripts/generate_image.py -p "一只猫" -k "your-api-key-here"
 ```
+
+## 作者介绍
+
+- 爱海贼的无处不在
+- 我的微信公众号：无处不在的技术
