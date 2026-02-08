@@ -4,40 +4,21 @@
 
 ## 🎯 现有技能
 
-###  nano-banana-pro-image-gen
-**AI图片生成技能** - 支持文生图、图生图编辑
-- 10种图片比例（1:1, 16:9, 9:16等）
-- 3种分辨率（1K/2K/4K）
-- 使用API易代理服务
-- [查看详情 →](skills/nano-banana-pro-image-gen/SKILL.md)
-安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill nano-banana-pro-image-gen
-
-###  pdf-to-image-preview
-**PDF文件转图片** - 支持PDF文件转换为图片
-- [查看详情 →](skills/pdf-to-image-preview/SKILL.md)
-安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill pdf-to-image-preview
-
-###  juejin-article-trends
-**掘金热门文章** - 支持获取掘金热门文章列表
-安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill juejin-article-trends
-
-###  baidu-milan-winter-olympics-2026
-**米兰冬奥会** - 获取2026年米兰冬奥会
-安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill baidu-milan-winter-olympics-2026
-
-###  toutiao-news-trends
-**今日头条新闻热榜** - 支持获取今日头条热榜/热搜榜
-安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill toutiao-news-trends
+| 技能 | 简介 | 详情 |
+|---|---|---|
+| nano-banana-pro-image-gen | AI 图片生成（文生图 / 图生图编辑），支持多种比例与分辨率 | [skills/nano-banana-pro-image-gen/SKILL.md](skills/nano-banana-pro-image-gen/SKILL.md) |
+| pdf-to-image-preview | PDF 转图片（逐页导出 PNG/JPG，支持分辨率配置） | [skills/pdf-to-image-preview/SKILL.md](skills/pdf-to-image-preview/SKILL.md) |
+| juejin-article-trends | 掘金热门文章榜单（分类列表 + 热门/最新文章） | [skills/juejin-article-trends/SKILL.md](skills/juejin-article-trends/SKILL.md) |
+| baidu-milan-winter-olympics-2026 | 2026 米兰冬奥会数据（奖牌榜、现场新闻、赛程） | [skills/baidu-milan-winter-olympics-2026/SKILL.md](skills/baidu-milan-winter-olympics-2026/SKILL.md) |
+| toutiao-news-trends | 今日头条新闻热榜（热点标题、热度值、跳转链接、封面图） | [skills/toutiao-news-trends/SKILL.md](skills/toutiao-news-trends/SKILL.md) |
+| wechat-article-search | 微信公众号文章搜索（标题、概要、发布时间、公众号名称与链接） | [skills/wechat-article-search/SKILL.md](skills/wechat-article-search/SKILL.md) |
 
 ## 🚀 技能安装
 
-- 使用npx命令：
-npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill 实际技能名称
-
-- 克隆仓库
-1. 复制此仓库
-2. 根据需要选择技能
-3. 查看各技能目录下的SKILL.md获取使用说明
+- 方式一：前往 https://skills.sh/?q=wuchubuzai2018
+- 方式二：添加具体技能：`npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill 技能名称`
+- 方式三：添加技能仓库：`npx skills add https://github.com/wuchubuzai2018/expert-skills-hub`
+- 方式四：手动下载技能文件夹，复制文件到自己的技能目录skills中
 
 ## 📁 技能目录结构
 
@@ -65,3 +46,8 @@ skills/
 - 命令行使用样例
 - 参数说明
 - 注意事项
+
+## 作者介绍
+
+- 爱海贼的无处不在
+- 我的微信公众号：无处不在的技术

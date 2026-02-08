@@ -26,3 +26,4 @@ dist/
 
 .vscode/
 .github/
+test/
