@@ -21,6 +21,14 @@
 **掘金热门文章** - 支持获取掘金热门文章列表
 安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill juejin-article-trends
 
+###  baidu-milan-winter-olympics-2026
+**米兰冬奥会** - 获取2026年米兰冬奥会
+安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill baidu-milan-winter-olympics-2026
+
+###  toutiao-news-trends
+**今日头条新闻热榜** - 支持获取今日头条热榜/热搜榜
+安装命令:npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill toutiao-news-trends
+
 ## 🚀 技能安装
 
 - 使用npx命令：

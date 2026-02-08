@@ -85,25 +85,6 @@ node scripts/juejin.js articles 6809637769959178254 hot 10
 node scripts/juejin.js articles 6809637769959178255 new 15
 ```
 
-## API说明
-
-此脚本使用掘金公开API：
-- 分类列表: `https://api.juejin.cn/tag_api/v1/query_category_briefs`
-- 文章排行: `https://api.juejin.cn/content_api/v1/content/article_rank?category_id={id}&type={type}`
-
-## 模块导出
-
-脚本也支持作为模块导入使用：
-
-```javascript
-const { getCategories, getArticles } = require('./juejin.js');
-
-// 获取分类
-const categories = await getCategories();
-
-// 获取文章
-const articles = await getArticles('6809637769959178254', 'hot', 10);
-```
 ## 作者介绍
 
 - 爱海贼的无处不在
