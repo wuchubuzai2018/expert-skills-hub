@@ -45,6 +45,10 @@ const HEADERS = {
 
 const SCHEDULE_URL = 'https://tiyu.baidu.com/al/major/home?match=2026年米兰冬奥会&tab=赛程';
 
+// 2026年米兰冬奥会日期范围 (2月6日 - 2月22日)
+const OLYMPICS_START_DATE = '2026-02-06';
+const OLYMPICS_END_DATE = '2026-02-22';
+
 /**
  * 发起HTTP GET请求
  * @param {string} url - 请求URL
@@ -151,21 +155,47 @@ function extractScheduleFromHtml(html) {
 
 /**
  * 获取全部赛程
- * @param {string} date - 日期过滤（可选），格式：2026-02-08
+ * @param {string} date - 日期过滤（可选），格式：2026-02-08。如果为空，则获取所有日期的赛程
+ * @param {boolean} fetchAll - 是否获取所有日期的数据（默认为true）
  * @returns {Promise<Array>} 赛程数组
  */
-async function getAllSchedule(date = '') {
+async function getAllSchedule(date = '', fetchAll = true) {
   try {
+    // 如果指定了具体日期，只获取该日期
+    if (date) {
+      const daySchedule = await getScheduleByDate(date);
+      return daySchedule ? [daySchedule] : [];
+    }
+    
+    // 获取所有日期的赛程
+    if (fetchAll) {
+      const allSchedules = [];
+      const dates = generateDateRange(OLYMPICS_START_DATE, OLYMPICS_END_DATE);
+      
+      // 并发请求所有日期的数据（限制并发数）
+      const batchSize = 5;
+      for (let i = 0; i < dates.length; i += batchSize) {
+        const batch = dates.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(date => getScheduleByDate(date))
+        );
+        
+        results.forEach(daySchedule => {
+          if (daySchedule && daySchedule.matches && daySchedule.matches.length > 0) {
+            allSchedules.push(daySchedule);
+          }
+        });
+      }
+      
+      return allSchedules;
+    }
+    
+    // 默认只获取今天的数据
     const html = await httpGet(SCHEDULE_URL);
-    let schedules = extractScheduleFromHtml(html);
+    const schedules = extractScheduleFromHtml(html);
     
     if (!schedules || schedules.length === 0) {
       throw new Error('未能从页面解析出赛程数据');
-    }
-    
-    // 按日期过滤
-    if (date) {
-      schedules = schedules.filter(item => item.date === date);
     }
     
     return schedules;
@@ -175,12 +205,91 @@ async function getAllSchedule(date = '') {
 }
 
 /**
+ * 生成日期范围内的所有日期
+ * @param {string} startDate - 开始日期 (YYYY-MM-DD)
+ * @param {string} endDate - 结束日期 (YYYY-MM-DD)
+ * @returns {Array<string>} 日期数组
+ */
+function generateDateRange(startDate, endDate) {
+  const dates = [];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  
+  return dates;
+}
+
+/**
+ * 获取指定日期的赛程数据
+ * @param {string} date - 日期 (YYYY-MM-DD)
+ * @returns {Promise<Object|null>} 该日期的赛程数据
+ */
+async function getScheduleByDate(date) {
+  try {
+    const url = `${SCHEDULE_URL}&date=${date}`;
+    const html = await httpGet(url);
+    const schedules = extractScheduleFromHtml(html);
+    
+    if (schedules && schedules.length > 0) {
+      return schedules[0];
+    }
+    return null;
+  } catch (error) {
+    console.warn(`获取 ${date} 的赛程失败: ${error.message}`);
+    return null;
+  }
+}
+
+/**
  * 获取中国相关赛程
- * @param {string} date - 日期过滤（可选），格式：2026-02-08
+ * @param {string} date - 日期过滤（可选），格式：2026-02-08。如果为空，则获取所有日期的中国赛程
+ * @param {boolean} fetchAll - 是否获取所有日期的数据（默认为true）
  * @returns {Promise<Array>} 中国相关赛程数组
  */
-async function getChinaSchedule(date = '') {
+async function getChinaSchedule(date = '', fetchAll = true) {
   try {
+    // 如果指定了具体日期，只获取该日期
+    if (date) {
+      const daySchedule = await getScheduleByDate(date);
+      if (!daySchedule) {
+        return [];
+      }
+      
+      daySchedule.matches = daySchedule.matches.filter(match => match.isChina);
+      return daySchedule.matches.length > 0 ? [daySchedule] : [];
+    }
+    
+    // 获取所有日期的中国赛程
+    if (fetchAll) {
+      const allSchedules = [];
+      const dates = generateDateRange(OLYMPICS_START_DATE, OLYMPICS_END_DATE);
+      
+      // 并发请求所有日期的数据（限制并发数）
+      const batchSize = 5;
+      for (let i = 0; i < dates.length; i += batchSize) {
+        const batch = dates.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(date => getScheduleByDate(date))
+        );
+        
+        results.forEach(daySchedule => {
+          if (daySchedule && daySchedule.matches) {
+            // 过滤中国相关赛程
+            daySchedule.matches = daySchedule.matches.filter(match => match.isChina);
+            if (daySchedule.matches.length > 0) {
+              allSchedules.push(daySchedule);
+            }
+          }
+        });
+      }
+      
+      return allSchedules;
+    }
+    
+    // 默认只获取今天的数据
     const html = await httpGet(SCHEDULE_URL);
     let schedules = extractScheduleFromHtml(html);
     
@@ -196,11 +305,6 @@ async function getChinaSchedule(date = '') {
     // 移除没有比赛的日期
     schedules = schedules.filter(day => day.matches.length > 0);
     
-    // 按日期过滤
-    if (date) {
-      schedules = schedules.filter(item => item.date === date);
-    }
-    
     return schedules;
   } catch (error) {
     throw new Error(`获取中国赛程失败: ${error.message}`);
@@ -209,11 +313,49 @@ async function getChinaSchedule(date = '') {
 
 /**
  * 获取金牌赛赛程
- * @param {string} date - 日期过滤（可选），格式：2026-02-08
+ * @param {string} date - 日期过滤（可选），格式：2026-02-08。如果为空，则获取所有日期的金牌赛
+ * @param {boolean} fetchAll - 是否获取所有日期的数据（默认为true）
  * @returns {Promise<Array>} 金牌赛赛程数组
  */
-async function getGoldSchedule(date = '') {
+async function getGoldSchedule(date = '', fetchAll = true) {
   try {
+    // 如果指定了具体日期，只获取该日期
+    if (date) {
+      const daySchedule = await getScheduleByDate(date);
+      if (!daySchedule) {
+        return [];
+      }
+      
+      daySchedule.matches = daySchedule.matches.filter(match => match.isGold);
+      return daySchedule.matches.length > 0 ? [daySchedule] : [];
+    }
+    
+    // 获取所有日期的金牌赛
+    if (fetchAll) {
+      const allSchedules = [];
+      const dates = generateDateRange(OLYMPICS_START_DATE, OLYMPICS_END_DATE);
+      
+      const batchSize = 5;
+      for (let i = 0; i < dates.length; i += batchSize) {
+        const batch = dates.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(date => getScheduleByDate(date))
+        );
+        
+        results.forEach(daySchedule => {
+          if (daySchedule && daySchedule.matches) {
+            daySchedule.matches = daySchedule.matches.filter(match => match.isGold);
+            if (daySchedule.matches.length > 0) {
+              allSchedules.push(daySchedule);
+            }
+          }
+        });
+      }
+      
+      return allSchedules;
+    }
+    
+    // 默认只获取今天的数据
     const html = await httpGet(SCHEDULE_URL);
     let schedules = extractScheduleFromHtml(html);
     
@@ -221,18 +363,11 @@ async function getGoldSchedule(date = '') {
       throw new Error('未能从页面解析出赛程数据');
     }
     
-    // 过滤金牌赛
     schedules.forEach(day => {
       day.matches = day.matches.filter(match => match.isGold);
     });
     
-    // 移除没有金牌赛的日期
     schedules = schedules.filter(day => day.matches.length > 0);
-    
-    // 按日期过滤
-    if (date) {
-      schedules = schedules.filter(item => item.date === date);
-    }
     
     return schedules;
   } catch (error) {
@@ -242,31 +377,62 @@ async function getGoldSchedule(date = '') {
 
 /**
  * 获取热门赛程
- * @param {string} date - 日期过滤（可选），格式：2026-02-08
+ * @param {string} date - 日期过滤（可选），格式：2026-02-08。如果为空，则获取所有日期的热门赛程
+ * @param {boolean} fetchAll - 是否获取所有日期的数据（默认为true）
  * @returns {Promise<Array>} 热门赛程数组
  */
-async function getHotSchedule(date = '') {
+async function getHotSchedule(date = '', fetchAll = true) {
   try {
+    // 如果指定了具体日期，只获取该日期
+    if (date) {
+      const daySchedule = await getScheduleByDate(date);
+      if (!daySchedule) {
+        return [];
+      }
+
+      daySchedule.matches = daySchedule.matches.filter(match => match.isHot);
+      return daySchedule.matches.length > 0 ? [daySchedule] : [];
+    }
+
+    // 获取所有日期的热门赛程
+    if (fetchAll) {
+      const allSchedules = [];
+      const dates = generateDateRange(OLYMPICS_START_DATE, OLYMPICS_END_DATE);
+
+      const batchSize = 5;
+      for (let i = 0; i < dates.length; i += batchSize) {
+        const batch = dates.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(date => getScheduleByDate(date))
+        );
+
+        results.forEach(daySchedule => {
+          if (daySchedule && daySchedule.matches) {
+            daySchedule.matches = daySchedule.matches.filter(match => match.isHot);
+            if (daySchedule.matches.length > 0) {
+              allSchedules.push(daySchedule);
+            }
+          }
+        });
+      }
+
+      return allSchedules;
+    }
+
+    // 默认只获取今天的数据
     const html = await httpGet(SCHEDULE_URL);
     let schedules = extractScheduleFromHtml(html);
-    
+
     if (!schedules || schedules.length === 0) {
       throw new Error('未能从页面解析出赛程数据');
     }
-    
-    // 过滤热门赛程
+
     schedules.forEach(day => {
       day.matches = day.matches.filter(match => match.isHot);
     });
-    
-    // 移除没有热门赛程的日期
+
     schedules = schedules.filter(day => day.matches.length > 0);
-    
-    // 按日期过滤
-    if (date) {
-      schedules = schedules.filter(item => item.date === date);
-    }
-    
+
     return schedules;
   } catch (error) {
     throw new Error(`获取热门赛程失败: ${error.message}`);
@@ -416,19 +582,20 @@ async function main() {
   node milan-schedule.js <command> [options]
 
 命令:
-  all, -a, --all [date]         获取全部赛程
-  china, -c, --china [date]     获取中国相关赛程
-  gold, -g, --gold [date]       获取金牌赛赛程
-  hot, -h, --hot [date]         获取热门赛程
+  all, -a, --all [date]         获取全部赛程（默认获取所有日期）
+  china, -c, --china [date]     获取中国相关赛程（默认获取所有日期）
+  gold, -g, --gold [date]       获取金牌赛赛程（默认获取所有日期）
+  hot, -h, --hot [date]         获取热门赛程（默认获取所有日期）
   today, -t, --today            获取今天的赛程（无需指定日期）
   tomorrow, -m, --tomorrow      获取明天的赛程（无需指定日期）
   dates, -d, --dates            获取可用的日期列表
 
 参数:
-  date    日期过滤，格式：2026-02-08（可选，除today/tomorrow外）
+  date    日期过滤，格式：2026-02-08（可选）。
+          不指定date时默认获取2026-02-06至2026-02-22所有日期的数据
 
 示例:
-  # 获取全部赛程
+  # 获取全部赛程（所有日期）
   node milan-schedule.js all
 
   # 获取特定日期的赛程
@@ -440,10 +607,13 @@ async function main() {
   # 获取明天的赛程
   node milan-schedule.js tomorrow
 
-  # 获取中国相关赛程
+  # 获取中国相关赛程（所有日期）
   node milan-schedule.js china
 
-  # 获取金牌赛赛程
+  # 获取特定日期的中国赛程
+  node milan-schedule.js china 2026-02-08
+
+  # 获取金牌赛赛程（所有日期）
   node milan-schedule.js gold
 
   # 查看所有可用日期
@@ -465,7 +635,11 @@ module.exports = {
   getHotSchedule,
   getAvailableDates,
   getTodaySchedule,
-  getTomorrowSchedule
+  getTomorrowSchedule,
+  getScheduleByDate,
+  generateDateRange,
+  OLYMPICS_START_DATE,
+  OLYMPICS_END_DATE
 };
 
 // 如果直接运行此脚本
