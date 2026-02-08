@@ -89,9 +89,21 @@ function pad2(n) {
   return String(n).padStart(2, '0');
 }
 
+function formatTimestamp(dateObj) {
+  const d = dateObj || new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}-${pad2(d.getHours())}-${pad2(d.getMinutes())}-${pad2(d.getSeconds())}`;
+}
+
+function addTimestampToFilename(filePath, timestamp) {
+  const ts = timestamp || formatTimestamp(new Date());
+  const parsed = path.parse(filePath);
+  const base = parsed.name ? `${parsed.name}-${ts}` : ts;
+  return path.join(parsed.dir || '.', `${base}${parsed.ext || ''}`);
+}
+
 function generateFilename(prompt) {
   const now = new Date();
-  const timestamp = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}-${pad2(now.getHours())}-${pad2(now.getMinutes())}-${pad2(now.getSeconds())}`;
+  const timestamp = formatTimestamp(now);
 
   const keywords = String(prompt).split(/\s+/).filter(Boolean).slice(0, 3);
   const keywordStrRaw = keywords.join('-') || 'image';
@@ -286,6 +298,16 @@ async function main() {
   const argv = process.argv.slice(2);
   const args = parseArgs(argv);
 
+  const runTimestamp = formatTimestamp(new Date());
+
+  let checkProgress = null;
+  const clearProgressTimer = () => {
+    if (checkProgress) {
+      clearInterval(checkProgress);
+      checkProgress = null;
+    }
+  };
+
   if (args.aspectRatio != null && !SUPPORTED_ASPECT_RATIOS.includes(args.aspectRatio)) {
     exitWithError(
       `错误: 不支持的比例 '${args.aspectRatio}'\n支持的比例: ${SUPPORTED_ASPECT_RATIOS.join(', ')}`
@@ -300,6 +322,13 @@ async function main() {
 
   if (!args.filename) {
     args.filename = generateFilename(args.prompt);
+  } else {
+    const resolved = path.resolve(args.filename);
+    if (fs.existsSync(resolved)) {
+      const adjusted = addTimestampToFilename(args.filename, runTimestamp);
+      process.stdout.write(`⚠️ 输出文件已存在，将避免覆盖并改为: ${adjusted}\n`);
+      args.filename = adjusted;
+    }
   }
 
   const apiKey = getApiKey(args.apiKey);
@@ -348,6 +377,13 @@ async function main() {
     generationConfig,
   };
 
+  // 生成前通知 + 生成中实时日志（避免长时间无输出导致体验不佳）
+  const resolutionHint = args.resolution;
+  const etaText = resolutionHint === '4K' ? '1-6分钟' : '30-120秒';
+  process.stdout.write('🎨 图片生成已启动！\n');
+  process.stdout.write(`⏱️ 预计时间: ${etaText}\n`);
+  process.stdout.write('📊 我会定期给您发送进度更新\n');
+
   process.stdout.write(`正在${modeStr}...\n`);
   process.stdout.write(`提示词: ${args.prompt}\n`);
 
@@ -383,10 +419,17 @@ async function main() {
   process.stdout.write(`输出请求参数: ${JSON.stringify(payloadLog, null, 2)}\n`);
   process.stdout.write('image generation in progress...\n');
 
+  const startTime = Date.now();
+  checkProgress = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    process.stdout.write(`🔄 已进行 ${elapsed}秒...\n`);
+  }, 5000);
+
   let data;
   try {
     data = await postJson(url, headers, payload, 120_000);
   } catch (e) {
+    clearProgressTimer();
     if (e && e.message === 'timeout') {
       exitWithError('错误: 请求超时，请稍后重试');
     }
@@ -406,6 +449,8 @@ async function main() {
 
     exitWithError(`错误: 请求失败 - ${e.message || String(e)}`);
   }
+
+  clearProgressTimer();
 
   const imageData =
     data &&
@@ -432,6 +477,7 @@ async function main() {
   fs.writeFileSync(outputFile, imageBytes);
 
   process.stdout.write(`✓ 图片已成功${modeStr}并保存到: ${args.filename}\n`);
+  process.stdout.write('✅ 生成完成！\n');
 }
 
 main().catch((e) => {

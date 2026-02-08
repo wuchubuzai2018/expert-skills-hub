@@ -24,7 +24,7 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
 
 3. **关键参数整理**：
    - **Prompt（必需）**：提示词分析后的最终提示词（默认=用户原始完整且一致的输入；仅在用户确认后才追加补充信息）。
-   - **Filename（必需）**：根据内容生成合理的文件名（例如 `cat_in_garden.png`），避免使用通用名。
+   - **Filename（可选）**：输出图片文件名/路径(需包含文件随机标识，避免重复)。不传则脚本会自动生成带时间戳的文件名。建议根据内容生成合理文件名（例如 `cat_in_garden.png`），避免使用通用名。
    - **Aspect Ratio（可选）**：根据用户描述推断比例。例如：
      - "手机壁纸" -> `9:16`
      - "电脑壁纸/视频封面" -> `16:9`
@@ -38,24 +38,41 @@ description: 图片生成技能，当用户需要生成图片、创建图像、�
 ### 第2步：环境检查与命令执行
 1. **检查环境**：确认 `APIYI_API_KEY` 环境变量是否已设置（通常假定已设置，若运行失败再提示用户）。
 2. **构建并运行命令**：
-   - 确保 `scripts/generate_image.py` 路径正确（通常是相对于工作区根目录）。
-   - 如果用户环境没有安装 Python，但安装了 Node.js，可以使用同目录下的 `scripts/generate_image.js`（参数与 Python 脚本保持一致）。
+   - **优先尝试 Node.js 版本**：如果环境有 Node（`node` 命令可用），优先使用 `scripts/generate_image.js`（零依赖，参数与 Python 保持一致）。
+   - **Node 不可用再用 Python 版本**：使用 `scripts/generate_image.py`。
    
-   **文生图命令模板：**
+   **文生图命令模板（优先 Node.js）：**
    ```bash
-   python scripts/generate_image.py -p "{prompt}" -f "{filename}" [-a {ratio}] [-r {res}]
+   node scripts/generate_image.js -p "{prompt}" -f "{filename}" [-a {ratio}] [-r {res}]
    ```
 
-   **图生图命令模板：**
+   **图生图命令模板（优先 Node.js）：**
    ```bash
+   node scripts/generate_image.js -p "{edit_instruction}" -i "{input_path}" -f "{output_filename}" [-r {res}]
+   ```
+
+   **（可选）Python 版本命令模板（Node 不可用时）**：
+   ```bash
+   python scripts/generate_image.py -p "{prompt}" -f "{filename}" [-a {ratio}] [-r {res}]
    python scripts/generate_image.py -p "{edit_instruction}" -i "{input_path}" -f "{output_filename}" [-r {res}]
    ```
 
-   **（可选）Node.js 版本命令模板（无 Python 环境）**：
-   ```bash
-   node scripts/generate_image.js -p "{prompt}" -f "{filename}" [-a {ratio}] [-r {res}]
-   node scripts/generate_image.js -p "{edit_instruction}" -i "{input_path}" -f "{output_filename}" [-r {res}]
-   ```
+## ⏱️ 长时间任务处理策略
+
+### 1. 任务前提示
+
+**执行前必须告知用户**：
+- "图片生成已启动，预计需要25秒到5分钟"
+
+### 2. 🎨 最佳实践示例
+
+1. 快速生成场景（1K分辨率）
+
+> "快速模式：1K分辨率生成，预计30秒内完成"
+
+2. 高质量生成场景（2K/4K分辨率）
+
+> "高质量模式：2K分辨率生成，预计1-4分钟\n⏳ 开始生成... 🔄"
 
 ### 第3步：结果反馈
 1. **执行反馈**：等待终端命令执行完毕。
@@ -123,6 +140,17 @@ node scripts/generate_image.js -p "参考多张图片融合风格" -i ref1.png r
 ## 附加资源
 - 常见使用场景文档：references/scene.md
 
+## 命令行参数说明
+
+> Python 与 Node.js 版本参数保持一致（短参数与长参数等价）。
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `-p` / `--prompt` | 是 | 图片描述（文生图）或编辑指令（图生图）。保留用户原始完整输入。 |
+| `-f` / `--filename` | 否 | 输出图片路径/文件名；不传则自动生成带时间戳的 PNG 文件名，并写入当前目录。 |
+| `-a` / `--aspect-ratio` | 否 | 图片比例：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3`、`5:4`、`4:5`、`21:9`。 |
+| `-r` / `--resolution` | 否 | 图片分辨率：`1K` / `2K` / `4K`（必须大写）。不传则不在请求中指定，由 API 侧决定。 |
+| `-i` / `--input-image` | 否 | 图生图输入图片路径；可传多张（最多 14 张）。传入该参数即进入编辑模式。 |
 
 ## 图片参数说明
 
@@ -153,7 +181,7 @@ node scripts/generate_image.js -p "参考多张图片融合风格" -i ref1.png r
 
 - API密钥必须设置，可通过环境变量或命令行参数提供
 - 分辨率参数必须大写（1K/2K/4K），小写会默认使用1K
-- 图片生成时间：25秒至8分钟不等，取决于分辨率和服务器负载
+- 图片生成时间：25秒到5分钟不等，取决于分辨率和服务器负载
 - 编辑图片时，输入图片会自动转换为base64编码
 - 确保输出目录有写入权限
 

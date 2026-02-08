@@ -69,6 +69,15 @@ def generate_filename(prompt):
     return f"{timestamp}-{keyword_str}.png"
 
 
+def add_timestamp_to_filename(filename: str, timestamp: str) -> str:
+    p = Path(filename)
+    stem = p.stem or "image"
+    suffix = p.suffix
+    # If suffix is empty, keep it empty (caller may intentionally omit extension)
+    new_name = f"{stem}-{timestamp}{suffix}"
+    return str(p.with_name(new_name))
+
+
 def encode_image_to_base64(image_path):
     """将图片文件转换为base64编码"""
     try:
@@ -304,9 +313,17 @@ def main():
 
     args = parser.parse_args()
 
+    run_timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
     # 如果没有指定文件名，自动生成
     if args.filename is None:
         args.filename = generate_filename(args.prompt)
+    else:
+        out_path = Path(args.filename)
+        if out_path.exists():
+            adjusted = add_timestamp_to_filename(args.filename, run_timestamp)
+            print(f"警告: 输出文件已存在，将避免覆盖并改为: {adjusted}")
+            args.filename = adjusted
 
     generate_image(
         prompt=args.prompt,
