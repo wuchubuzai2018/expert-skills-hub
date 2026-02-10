@@ -1,11 +1,11 @@
 ---
 name: baidu-milan-winter-olympics-2026
-description: 获取2026年米兰冬奥会数据，包括奖牌榜排名、现场新闻报道和赛程安排。从百度体育网页抓取实时的奖牌排行榜信息、最新新闻资讯和比赛赛程。当用户需要查询冬奥会奖牌榜、了解各国奖牌数量、获取现场新闻、查看赛程安排时使用此技能。
+description: 获取2026年米兰冬奥会数据技能，包括奖牌榜排名、现场新闻报道和赛程安排。从百度体育网页抓取实时的奖牌排行榜信息、最新新闻资讯和比赛赛程。当用户需要获取米兰冬奥会需求，需要查询冬奥会奖牌榜、了解各国奖牌数量、获取现场新闻、查看赛程安排时使用此技能。
 ---
 
 # 2026年米兰冬奥会数据获取
 
-## 功能概述
+## 技能概述
 
 此技能用于获取2026年米兰冬奥会的以下数据：
 
@@ -29,6 +29,15 @@ description: 获取2026年米兰冬奥会数据，包括奖牌榜排名、现场
 - 金牌赛赛程
 - 热门赛程
 - 比赛时间、状态、项目信息
+
+### 4. 中国队获奖名单数据
+- 中国队所有获奖运动员名单
+- 奖牌类型（金牌/银牌/铜牌）
+- 运动员姓名
+- 比赛项目（大项和小项）
+- 获奖时间
+- 视频集锦链接
+- 奖牌统计信息
 
 数据来源：百度体育 (tiyu.baidu.com)
 
@@ -128,6 +137,79 @@ node scripts/milan-news.js types
 | videoDuration | string | 视频时长（仅视频类型） |
 | videoUrl | string | 视频播放链接（仅视频类型） |
 | matchId | array | 关联的赛事ID |
+
+## 获取中国队获奖名单数据
+
+### 获取全部获奖名单
+
+当用户需要查看中国队所有获奖运动员时：
+
+```bash
+node scripts/milan-china-medals.js list
+```
+
+### 按奖牌类型筛选
+
+获取中国队的金牌获奖名单：
+
+```bash
+node scripts/milan-china-medals.js list gold
+```
+
+获取中国队的银牌获奖名单：
+
+```bash
+node scripts/milan-china-medals.js list silver
+```
+
+获取中国队的铜牌获奖名单：
+
+```bash
+node scripts/milan-china-medals.js list bronze
+```
+
+### 获取奖牌统计
+
+获取中国队奖牌统计信息（按项目和类型统计）：
+
+```bash
+node scripts/milan-china-medals.js stats
+```
+
+### 中国队获奖名单数据字段说明
+
+**代表团信息（delegationInfo）：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| country | string | 国家名称（中文） |
+| countryEn | string | 国家名称（英文） |
+| rank | string | 当前排名 |
+| gold | string | 金牌数 |
+| silver | string | 银牌数 |
+| bronze | string | 铜牌数 |
+| delegationId | string | 代表团ID |
+
+**获奖记录（medals）：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| playerName | string | 运动员姓名 |
+| medal | string | 奖牌名称（如"第1银"） |
+| medalType | string | 奖牌类型：gold/silver/bronze |
+| medalRank | number | 奖牌序号 |
+| bigMatch | string | 大项（如"自由式滑雪"） |
+| smallMatch | string | 小项（如"自由式滑雪女子坡面障碍技巧"） |
+| date | string | 日期（如"02月09日"） |
+| time | string | 时间（如"21:00"） |
+| medalTime | string | 时间戳 |
+| rank | number | 比赛排名 |
+| detailUrl | string | 详情页面URL |
+| loc | string | 本地链接 |
+| videoInfo | object | 视频信息（含播放链接） |
+| playIconArr | array | 播放图标数组 |
+| country | string | 国家 |
+| olympicEventId | string | 赛事ID |
 
 ## 获取赛程数据
 
