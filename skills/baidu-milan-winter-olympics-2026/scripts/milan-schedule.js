@@ -103,11 +103,12 @@ function httpGet(url) {
  * 构建API URL
  * @param {string} date - 日期 (YYYY-MM-DD)
  * @param {string} scheduleType - 赛程类型: all, hot, china, gold
+ * @param {string} sportId - 运动项目ID，默认为'all'
  * @returns {string} 完整的API URL
  */
-function buildApiUrl(date, scheduleType = 'all') {
+function buildApiUrl(date, scheduleType = 'all', sportId = 'all') {
   const type = SCHEDULE_TYPES[scheduleType] || 'all';
-  return `${API_BASE_URL}?date=${date}&scheduleType=${type}&sportId=all&page=home&from=landing&isAsync=1`;
+  return `${API_BASE_URL}?date=${date}&scheduleType=${type}&sportId=${sportId}&page=home&from=landing&isAsync=1`;
 }
 
 /**
@@ -473,6 +474,94 @@ async function getAvailableDates() {
 }
 
 /**
+ * 获取所有运动项目列表
+ * @returns {Promise<Object>} 包含热门项目和其他项目的对象
+ */
+async function getAllSports() {
+  try {
+    const today = getTodayDate();
+    const url = buildApiUrl(today, 'all');
+    const response = await httpGet(url);
+    
+    if (!response || response.status !== '0' || !response.data) {
+      return { hot: [], other: [] };
+    }
+
+    const data = response.data;
+    
+    if (data.select && data.select.sport) {
+      const sports = data.select.sport;
+      return {
+        hot: (sports.hot || []).map(sport => ({
+          name: sport.name,
+          value: sport.value,
+          selected: sport.selected,
+          hot: sport.hot || 0
+        })),
+        other: (sports.other || []).map(sport => ({
+          name: sport.name,
+          value: sport.value,
+          selected: sport.selected
+        }))
+      };
+    }
+    
+    return { hot: [], other: [] };
+  } catch (error) {
+    console.warn('获取运动项目列表失败:', error.message);
+    return { hot: [], other: [] };
+  }
+}
+
+/**
+ * 获取指定运动项目的赛程数据
+ * @param {string} sportId - 运动项目ID (如 '302' 表示短道速滑，'all' 表示全部项目)
+ * @param {string} date - 日期 (YYYY-MM-DD)，如果为空则获取今天
+ * @returns {Promise<Array>} 该运动项目的赛程数据数组
+ */
+async function getScheduleBySport(sportId, date = '') {
+  try {
+    const targetDate = date || getTodayDate();
+    const url = buildApiUrl(targetDate, 'all', sportId);
+    const response = await httpGet(url);
+    const schedules = extractScheduleFromResponse(response);
+    
+    return schedules || [];
+  } catch (error) {
+    console.warn(`获取运动项目 ${sportId} 的赛程失败: ${error.message}`);
+    return [];
+  }
+}
+
+/**
+ * 获取中国指定日期的指定运动项目赛程
+ * @param {string} sportId - 运动项目ID (如 '302' 表示短道速滑)
+ * @param {string} date - 日期 (YYYY-MM-DD)，如果为空则获取今天
+ * @returns {Promise<Array>} 中国相关的指定运动项目赛程数组
+ */
+async function getChinaScheduleBySport(sportId, date = '') {
+  try {
+    const targetDate = date || getTodayDate();
+    const url = buildApiUrl(targetDate, 'china', sportId);
+    const response = await httpGet(url);
+    const schedules = extractScheduleFromResponse(response);
+    
+    if (!schedules || schedules.length === 0) {
+      return [];
+    }
+    
+    // 过滤出中国相关的比赛
+    return schedules.map(day => ({
+      ...day,
+      matches: day.matches.filter(match => match.isChina)
+    })).filter(day => day.matches.length > 0);
+  } catch (error) {
+    console.warn(`获取中国运动项目 ${sportId} 的赛程失败: ${error.message}`);
+    return [];
+  }
+}
+
+/**
  * 获取今天的日期字符串（YYYY-MM-DD）
  * @returns {string} 今天的日期
  */
@@ -584,6 +673,44 @@ async function main() {
         break;
       }
 
+      case 'sports':
+      case '--sports':
+      case '-s': {
+        const sports = await getAllSports();
+        console.log(JSON.stringify(sports, null, 2));
+        break;
+      }
+
+      case 'sport':
+      case '--sport': {
+        const sportId = args[1];
+        const date = args[2] || '';
+        if (!sportId) {
+          console.error('Error: 请指定运动项目ID');
+          console.log('用法: node milan-schedule.js sport <sportId> [date]');
+          console.log('示例: node milan-schedule.js sport 302 2026-02-10');
+          process.exit(1);
+        }
+        const schedules = await getScheduleBySport(sportId, date);
+        console.log(JSON.stringify(schedules, null, 2));
+        break;
+      }
+
+      case 'china-sport':
+      case '--china-sport': {
+        const sportId = args[1];
+        const date = args[2] || '';
+        if (!sportId) {
+          console.error('Error: 请指定运动项目ID');
+          console.log('用法: node milan-schedule.js china-sport <sportId> [date]');
+          console.log('示例: node milan-schedule.js china-sport 302 2026-02-10');
+          process.exit(1);
+        }
+        const schedules = await getChinaScheduleBySport(sportId, date);
+        console.log(JSON.stringify(schedules, null, 2));
+        break;
+      }
+
       default:
         console.log(`
 2026年米兰冬奥会赛程获取工具
@@ -599,10 +726,14 @@ async function main() {
   today, -t, --today            获取今天的赛程（无需指定日期）
   tomorrow, -m, --tomorrow      获取明天的赛程（无需指定日期）
   dates, -d, --dates            获取可用的日期列表
+  sports, -s, --sports          获取所有运动项目列表
+  sport <sportId> [date]        获取指定运动项目的赛程
+  china-sport <sportId> [date]  获取中国指定运动项目的赛程
 
 参数:
-  date    日期过滤，格式：2026-02-08（可选）。
-          不指定date时默认获取2026-02-06至2026-02-22所有日期的数据
+  date      日期过滤，格式：2026-02-08（可选）。
+            不指定date时默认获取2026-02-06至2026-02-22所有日期的数据
+  sportId   运动项目ID，可通过 sports 命令查看
 
 示例:
   # 获取全部赛程（所有日期）
@@ -628,6 +759,21 @@ async function main() {
 
   # 查看所有可用日期
   node milan-schedule.js dates
+
+  # 查看所有运动项目
+  node milan-schedule.js sports
+
+  # 获取短道速滑赛程（sportId: 302）
+  node milan-schedule.js sport 302
+
+  # 获取特定日期短道速滑赛程
+  node milan-schedule.js sport 302 2026-02-10
+
+  # 获取中国短道速滑赛程
+  node milan-schedule.js china-sport 302
+
+  # 获取特定日期中国短道速滑赛程
+  node milan-schedule.js china-sport 302 2026-02-10
 `);
         process.exit(0);
     }
@@ -644,6 +790,9 @@ module.exports = {
   getGoldSchedule,
   getHotSchedule,
   getAvailableDates,
+  getAllSports,
+  getScheduleBySport,
+  getChinaScheduleBySport,
   getTodaySchedule,
   getTomorrowSchedule,
   getScheduleByDate,

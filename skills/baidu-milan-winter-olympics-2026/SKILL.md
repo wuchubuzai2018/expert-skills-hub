@@ -300,6 +300,62 @@ node scripts/milan-schedule.js dates
 | detailUrl | string | 详情页面URL |
 | iconArr | array | 图标标签数组 |
 
+### 获取运动项目列表
+
+查看所有可用的运动项目及其ID：
+
+```bash
+node scripts/milan-schedule.js sports
+```
+
+返回数据结构：
+- **hot**: 热门项目列表（包含热度值）
+- **other**: 其他项目列表
+
+常见运动项目ID对照：
+| 项目名称 | ID |
+|---------|-----|
+| 短道速滑 | 302 |
+| 花样滑冰 | 217 |
+| 速度滑冰 | 103 |
+| 单板滑雪 | 222 |
+| 自由式滑雪 | 221 |
+| 冰壶 | 212 |
+| 冰球 | 113 |
+| 高山滑雪 | 115 |
+| 雪车 | 213 |
+| 雪橇 | 214 |
+| 钢架雪车 | 307 |
+| 跳台滑雪 | 215 |
+| 越野滑雪 | 220 |
+| 滑雪登山 | 615 |
+| 北欧两项 | 216 |
+| 冬季两项 | 218 |
+
+### 获取指定运动项目的赛程
+
+查询特定运动项目的赛程安排：
+
+```bash
+# 获取短道速滑所有赛程
+node scripts/milan-schedule.js sport 302
+
+# 获取特定日期的短道速滑赛程
+node scripts/milan-schedule.js sport 302 2026-02-10
+```
+
+### 获取中国指定运动项目的赛程
+
+查询中国队在特定运动项目的赛程：
+
+```bash
+# 获取中国短道速滑赛程
+node scripts/milan-schedule.js china-sport 302
+
+# 获取特定日期中国短道速滑赛程
+node scripts/milan-schedule.js china-sport 302 2026-02-10
+```
+
 ## 作者介绍
 
 - 爱海贼的无处不在
