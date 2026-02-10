@@ -2,7 +2,7 @@
 
 /**
  * 2026年米兰冬奥会赛程获取工具
- * 从百度体育网页抓取赛程安排数据
+ * 从百度体育异步API获取赛程安排数据
  */
 
 const https = require('https');
@@ -36,14 +36,23 @@ function getRandomUserAgent() {
 }
 
 const HEADERS = {
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+  'Accept': 'application/json, text/plain, */*',
   'Accept-Encoding': 'identity',
   'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
   'Referer': 'https://tiyu.baidu.com/',
   'Origin': 'https://tiyu.baidu.com'
 };
 
-const SCHEDULE_URL = 'https://tiyu.baidu.com/al/major/home?match=2026年米兰冬奥会&tab=赛程';
+// API基础URL
+const API_BASE_URL = 'https://tiyu.baidu.com/al/major/schedule/list';
+
+// 赛程类型映射
+const SCHEDULE_TYPES = {
+  all: 'all',      // 综合
+  hot: 'hot',      // 热门
+  china: 'china',  // 中国
+  gold: 'gold'     // 金牌
+};
 
 // 2026年米兰冬奥会日期范围 (2月6日 - 2月22日)
 const OLYMPICS_START_DATE = '2026-02-06';
@@ -52,7 +61,7 @@ const OLYMPICS_END_DATE = '2026-02-22';
 /**
  * 发起HTTP GET请求
  * @param {string} url - 请求URL
- * @returns {Promise<string>} 响应HTML内容
+ * @returns {Promise<Object>} 响应JSON数据
  */
 function httpGet(url) {
   return new Promise((resolve, reject) => {
@@ -70,8 +79,14 @@ function httpGet(url) {
       res.on('data', (chunk) => { chunks.push(chunk); });
       
       res.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        resolve(buffer.toString('utf-8'));
+        try {
+          const buffer = Buffer.concat(chunks);
+          const text = buffer.toString('utf-8');
+          const data = JSON.parse(text);
+          resolve(data);
+        } catch (e) {
+          reject(new Error(`解析JSON失败: ${e.message}`));
+        }
       });
     });
 
@@ -85,122 +100,90 @@ function httpGet(url) {
 }
 
 /**
- * 从HTML中提取JSON数据
- * @param {string} html - HTML内容
- * @returns {Array|null} 赛程数据数组
+ * 构建API URL
+ * @param {string} date - 日期 (YYYY-MM-DD)
+ * @param {string} scheduleType - 赛程类型: all, hot, china, gold
+ * @returns {string} 完整的API URL
  */
-function extractScheduleFromHtml(html) {
-  try {
-    // 查找包含页面数据的script标签
-    const scriptRegex = /<script id="atom-data-[^"]*" type="application\/json">([\s\S]*?)<\/script>/;
-    const match = html.match(scriptRegex);
-    
-    if (match && match[1]) {
-      const parsed = JSON.parse(match[1]);
-      
-      // 数据在 data.data.data.tabsList 中
-      const pageData = parsed.data && parsed.data.data ? parsed.data.data : null;
-      
-      if (pageData && pageData.tabsList) {
-        // 查找赛程标签页 (rootTab === 'schedule')
-        const scheduleTab = pageData.tabsList.find(tab => tab.rootTab === 'schedule');
-        
-        if (scheduleTab && scheduleTab.dateList) {
-          // 转换数据结构
-          const schedules = [];
-          
-          scheduleTab.dateList.forEach(dateItem => {
-            const dateInfo = {
-              date: dateItem.date,
-              dateFmt: dateItem.dateFmt,
-              countText: dateItem.countText,
-              matches: []
-            };
-            
-            if (dateItem.scheduleList) {
-              dateInfo.matches = dateItem.scheduleList.map(match => ({
-                matchId: match.matchId || '',
-                matchName: match.matchName || '',
-                sportName: match.discipline ? match.discipline.sportName : '',
-                eventName: match.discipline ? match.discipline.eventName : '',
-                startTime: match.startTime || '',
-                startDate: match.startDate || '',
-                startDateTime: match.startDateTime || '',
-                status: match.eventStatusName || '',
-                statusId: match.eventStatusId || '',
-                desc: match.desc || '',
-                isChina: match.isChina === '1',
-                isGold: match.isGold === '1',
-                isHot: match.isHot === '1',
-                isMedal: match.isMedal === '1',
-                hasLive: match.hasLive || false,
-                participant: match.participant || '',
-                detailUrl: match.fullLink || '',
-                iconArr: match.iconArr || []
-              }));
-            }
-            
-            schedules.push(dateInfo);
-          });
-          
-          return schedules;
-        }
-      }
-    }
-  } catch (e) {
-    console.error('解析JSON数据失败:', e.message);
-  }
-  return null;
+function buildApiUrl(date, scheduleType = 'all') {
+  const type = SCHEDULE_TYPES[scheduleType] || 'all';
+  return `${API_BASE_URL}?date=${date}&scheduleType=${type}&sportId=all&page=home&from=landing&isAsync=1`;
 }
 
 /**
- * 获取全部赛程
- * @param {string} date - 日期过滤（可选），格式：2026-02-08。如果为空，则获取所有日期的赛程
- * @param {boolean} fetchAll - 是否获取所有日期的数据（默认为true）
- * @returns {Promise<Array>} 赛程数组
+ * 从API响应中提取赛程数据
+ * @param {Object} response - API响应数据
+ * @returns {Array|null} 赛程数据数组
  */
-async function getAllSchedule(date = '', fetchAll = true) {
+function extractScheduleFromResponse(response) {
   try {
-    // 如果指定了具体日期，只获取该日期
-    if (date) {
-      const daySchedule = await getScheduleByDate(date);
-      return daySchedule ? [daySchedule] : [];
+    if (!response || response.status !== '0' || !response.data) {
+      return null;
     }
+
+    const data = response.data;
     
-    // 获取所有日期的赛程
-    if (fetchAll) {
-      const allSchedules = [];
-      const dates = generateDateRange(OLYMPICS_START_DATE, OLYMPICS_END_DATE);
-      
-      // 并发请求所有日期的数据（限制并发数）
-      const batchSize = 5;
-      for (let i = 0; i < dates.length; i += batchSize) {
-        const batch = dates.slice(i, i + batchSize);
-        const results = await Promise.all(
-          batch.map(date => getScheduleByDate(date))
-        );
-        
-        results.forEach(daySchedule => {
-          if (daySchedule && daySchedule.matches && daySchedule.matches.length > 0) {
-            allSchedules.push(daySchedule);
-          }
-        });
-      }
-      
-      return allSchedules;
+    if (!data.dateList || !Array.isArray(data.dateList)) {
+      return null;
     }
-    
-    // 默认只获取今天的数据
-    const html = await httpGet(SCHEDULE_URL);
-    const schedules = extractScheduleFromHtml(html);
-    
-    if (!schedules || schedules.length === 0) {
-      throw new Error('未能从页面解析出赛程数据');
-    }
-    
+
+    // 转换数据结构
+    const schedules = data.dateList.map(dateItem => ({
+      date: dateItem.date,
+      dateFmt: dateItem.dateFmt,
+      week: dateItem.week,
+      countText: dateItem.countText,
+      display: dateItem.display,
+      matches: dateItem.scheduleList ? dateItem.scheduleList.map(match => ({
+        matchId: match.matchId || '',
+        matchName: match.matchName || '',
+        sportName: match.discipline ? match.discipline.sportName : '',
+        eventName: match.discipline ? match.discipline.eventName : '',
+        subSportName: match.discipline ? match.discipline.subSportName : '',
+        startTime: match.startTime || '',
+        startDate: match.startDate || '',
+        startDateTime: match.startDateTime || '',
+        startTimestamp: match.startTimestamp || null,
+        status: match.eventStatusName || '',
+        statusId: match.eventStatusId || '',
+        desc: match.desc || '',
+        isChina: match.isChina === '1',
+        isGold: match.isGold === '1',
+        isHot: match.isHot === '1',
+        isMedal: match.isMedal === '1',
+        isPk: match.isPk === '1',
+        hasLive: match.hasLive || false,
+        participant: match.participant || '',
+        detailUrl: match.fullLink || '',
+        iconArr: match.iconArr || [],
+        result: match.result || null,
+        dataSource: match.dataSource || null
+      })) : []
+    }));
+
     return schedules;
+  } catch (e) {
+    console.error('解析赛程数据失败:', e.message);
+    return null;
+  }
+}
+
+/**
+ * 获取指定日期的赛程数据
+ * @param {string} date - 日期 (YYYY-MM-DD)
+ * @param {string} scheduleType - 赛程类型: all, hot, china, gold
+ * @returns {Promise<Array>} 该日期的赛程数据数组
+ */
+async function getScheduleByDate(date, scheduleType = 'all') {
+  try {
+    const url = buildApiUrl(date, scheduleType);
+    const response = await httpGet(url);
+    const schedules = extractScheduleFromResponse(response);
+    
+    return schedules || [];
   } catch (error) {
-    throw new Error(`获取赛程失败: ${error.message}`);
+    console.warn(`获取 ${date} 的赛程失败: ${error.message}`);
+    return [];
   }
 }
 
@@ -223,23 +206,50 @@ function generateDateRange(startDate, endDate) {
 }
 
 /**
- * 获取指定日期的赛程数据
- * @param {string} date - 日期 (YYYY-MM-DD)
- * @returns {Promise<Object|null>} 该日期的赛程数据
+ * 获取全部赛程
+ * @param {string} date - 日期过滤（可选），格式：2026-02-08。如果为空，则获取所有日期的赛程
+ * @param {boolean} fetchAll - 是否获取所有日期的数据（默认为true）
+ * @returns {Promise<Array>} 赛程数组
  */
-async function getScheduleByDate(date) {
+async function getAllSchedule(date = '', fetchAll = true) {
   try {
-    const url = `${SCHEDULE_URL}&date=${date}`;
-    const html = await httpGet(url);
-    const schedules = extractScheduleFromHtml(html);
-    
-    if (schedules && schedules.length > 0) {
-      return schedules[0];
+    // 如果指定了具体日期，只获取该日期
+    if (date) {
+      return await getScheduleByDate(date, 'all');
     }
-    return null;
+    
+    // 获取所有日期的赛程
+    if (fetchAll) {
+      const allSchedules = [];
+      const dates = generateDateRange(OLYMPICS_START_DATE, OLYMPICS_END_DATE);
+      
+      // 并发请求所有日期的数据（限制并发数）
+      const batchSize = 5;
+      for (let i = 0; i < dates.length; i += batchSize) {
+        const batch = dates.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(date => getScheduleByDate(date, 'all'))
+        );
+        
+        results.forEach(daySchedules => {
+          if (daySchedules && daySchedules.length > 0) {
+            daySchedules.forEach(day => {
+              if (day.matches && day.matches.length > 0) {
+                allSchedules.push(day);
+              }
+            });
+          }
+        });
+      }
+      
+      return allSchedules;
+    }
+    
+    // 默认只获取今天的数据
+    const today = getTodayDate();
+    return await getScheduleByDate(today, 'all');
   } catch (error) {
-    console.warn(`获取 ${date} 的赛程失败: ${error.message}`);
-    return null;
+    throw new Error(`获取赛程失败: ${error.message}`);
   }
 }
 
@@ -253,13 +263,12 @@ async function getChinaSchedule(date = '', fetchAll = true) {
   try {
     // 如果指定了具体日期，只获取该日期
     if (date) {
-      const daySchedule = await getScheduleByDate(date);
-      if (!daySchedule) {
-        return [];
-      }
-      
-      daySchedule.matches = daySchedule.matches.filter(match => match.isChina);
-      return daySchedule.matches.length > 0 ? [daySchedule] : [];
+      const schedules = await getScheduleByDate(date, 'china');
+      // 过滤出中国相关的比赛
+      return schedules.map(day => ({
+        ...day,
+        matches: day.matches.filter(match => match.isChina)
+      })).filter(day => day.matches.length > 0);
     }
     
     // 获取所有日期的中国赛程
@@ -272,16 +281,23 @@ async function getChinaSchedule(date = '', fetchAll = true) {
       for (let i = 0; i < dates.length; i += batchSize) {
         const batch = dates.slice(i, i + batchSize);
         const results = await Promise.all(
-          batch.map(date => getScheduleByDate(date))
+          batch.map(date => getScheduleByDate(date, 'china'))
         );
         
-        results.forEach(daySchedule => {
-          if (daySchedule && daySchedule.matches) {
-            // 过滤中国相关赛程
-            daySchedule.matches = daySchedule.matches.filter(match => match.isChina);
-            if (daySchedule.matches.length > 0) {
-              allSchedules.push(daySchedule);
-            }
+        results.forEach(daySchedules => {
+          if (daySchedules && daySchedules.length > 0) {
+            daySchedules.forEach(day => {
+              if (day.matches && day.matches.length > 0) {
+                // API返回的china类型数据已经是过滤过的，但再过滤一次确保安全
+                const chinaMatches = day.matches.filter(match => match.isChina);
+                if (chinaMatches.length > 0) {
+                  allSchedules.push({
+                    ...day,
+                    matches: chinaMatches
+                  });
+                }
+              }
+            });
           }
         });
       }
@@ -290,22 +306,12 @@ async function getChinaSchedule(date = '', fetchAll = true) {
     }
     
     // 默认只获取今天的数据
-    const html = await httpGet(SCHEDULE_URL);
-    let schedules = extractScheduleFromHtml(html);
-    
-    if (!schedules || schedules.length === 0) {
-      throw new Error('未能从页面解析出赛程数据');
-    }
-    
-    // 过滤中国相关赛程
-    schedules.forEach(day => {
-      day.matches = day.matches.filter(match => match.isChina);
-    });
-    
-    // 移除没有比赛的日期
-    schedules = schedules.filter(day => day.matches.length > 0);
-    
-    return schedules;
+    const today = getTodayDate();
+    const schedules = await getScheduleByDate(today, 'china');
+    return schedules.map(day => ({
+      ...day,
+      matches: day.matches.filter(match => match.isChina)
+    })).filter(day => day.matches.length > 0);
   } catch (error) {
     throw new Error(`获取中国赛程失败: ${error.message}`);
   }
@@ -321,13 +327,11 @@ async function getGoldSchedule(date = '', fetchAll = true) {
   try {
     // 如果指定了具体日期，只获取该日期
     if (date) {
-      const daySchedule = await getScheduleByDate(date);
-      if (!daySchedule) {
-        return [];
-      }
-      
-      daySchedule.matches = daySchedule.matches.filter(match => match.isGold);
-      return daySchedule.matches.length > 0 ? [daySchedule] : [];
+      const schedules = await getScheduleByDate(date, 'gold');
+      return schedules.map(day => ({
+        ...day,
+        matches: day.matches.filter(match => match.isGold)
+      })).filter(day => day.matches.length > 0);
     }
     
     // 获取所有日期的金牌赛
@@ -339,15 +343,22 @@ async function getGoldSchedule(date = '', fetchAll = true) {
       for (let i = 0; i < dates.length; i += batchSize) {
         const batch = dates.slice(i, i + batchSize);
         const results = await Promise.all(
-          batch.map(date => getScheduleByDate(date))
+          batch.map(date => getScheduleByDate(date, 'gold'))
         );
         
-        results.forEach(daySchedule => {
-          if (daySchedule && daySchedule.matches) {
-            daySchedule.matches = daySchedule.matches.filter(match => match.isGold);
-            if (daySchedule.matches.length > 0) {
-              allSchedules.push(daySchedule);
-            }
+        results.forEach(daySchedules => {
+          if (daySchedules && daySchedules.length > 0) {
+            daySchedules.forEach(day => {
+              if (day.matches && day.matches.length > 0) {
+                const goldMatches = day.matches.filter(match => match.isGold);
+                if (goldMatches.length > 0) {
+                  allSchedules.push({
+                    ...day,
+                    matches: goldMatches
+                  });
+                }
+              }
+            });
           }
         });
       }
@@ -356,20 +367,12 @@ async function getGoldSchedule(date = '', fetchAll = true) {
     }
     
     // 默认只获取今天的数据
-    const html = await httpGet(SCHEDULE_URL);
-    let schedules = extractScheduleFromHtml(html);
-    
-    if (!schedules || schedules.length === 0) {
-      throw new Error('未能从页面解析出赛程数据');
-    }
-    
-    schedules.forEach(day => {
-      day.matches = day.matches.filter(match => match.isGold);
-    });
-    
-    schedules = schedules.filter(day => day.matches.length > 0);
-    
-    return schedules;
+    const today = getTodayDate();
+    const schedules = await getScheduleByDate(today, 'gold');
+    return schedules.map(day => ({
+      ...day,
+      matches: day.matches.filter(match => match.isGold)
+    })).filter(day => day.matches.length > 0);
   } catch (error) {
     throw new Error(`获取金牌赛赛程失败: ${error.message}`);
   }
@@ -385,13 +388,11 @@ async function getHotSchedule(date = '', fetchAll = true) {
   try {
     // 如果指定了具体日期，只获取该日期
     if (date) {
-      const daySchedule = await getScheduleByDate(date);
-      if (!daySchedule) {
-        return [];
-      }
-
-      daySchedule.matches = daySchedule.matches.filter(match => match.isHot);
-      return daySchedule.matches.length > 0 ? [daySchedule] : [];
+      const schedules = await getScheduleByDate(date, 'hot');
+      return schedules.map(day => ({
+        ...day,
+        matches: day.matches.filter(match => match.isHot)
+      })).filter(day => day.matches.length > 0);
     }
 
     // 获取所有日期的热门赛程
@@ -403,15 +404,22 @@ async function getHotSchedule(date = '', fetchAll = true) {
       for (let i = 0; i < dates.length; i += batchSize) {
         const batch = dates.slice(i, i + batchSize);
         const results = await Promise.all(
-          batch.map(date => getScheduleByDate(date))
+          batch.map(date => getScheduleByDate(date, 'hot'))
         );
 
-        results.forEach(daySchedule => {
-          if (daySchedule && daySchedule.matches) {
-            daySchedule.matches = daySchedule.matches.filter(match => match.isHot);
-            if (daySchedule.matches.length > 0) {
-              allSchedules.push(daySchedule);
-            }
+        results.forEach(daySchedules => {
+          if (daySchedules && daySchedules.length > 0) {
+            daySchedules.forEach(day => {
+              if (day.matches && day.matches.length > 0) {
+                const hotMatches = day.matches.filter(match => match.isHot);
+                if (hotMatches.length > 0) {
+                  allSchedules.push({
+                    ...day,
+                    matches: hotMatches
+                  });
+                }
+              }
+            });
           }
         });
       }
@@ -420,20 +428,12 @@ async function getHotSchedule(date = '', fetchAll = true) {
     }
 
     // 默认只获取今天的数据
-    const html = await httpGet(SCHEDULE_URL);
-    let schedules = extractScheduleFromHtml(html);
-
-    if (!schedules || schedules.length === 0) {
-      throw new Error('未能从页面解析出赛程数据');
-    }
-
-    schedules.forEach(day => {
-      day.matches = day.matches.filter(match => match.isHot);
-    });
-
-    schedules = schedules.filter(day => day.matches.length > 0);
-
-    return schedules;
+    const today = getTodayDate();
+    const schedules = await getScheduleByDate(today, 'hot');
+    return schedules.map(day => ({
+      ...day,
+      matches: day.matches.filter(match => match.isHot)
+    })).filter(day => day.matches.length > 0);
   } catch (error) {
     throw new Error(`获取热门赛程失败: ${error.message}`);
   }
@@ -445,19 +445,29 @@ async function getHotSchedule(date = '', fetchAll = true) {
  */
 async function getAvailableDates() {
   try {
-    const html = await httpGet(SCHEDULE_URL);
-    const schedules = extractScheduleFromHtml(html);
+    const today = getTodayDate();
+    const url = buildApiUrl(today, 'all');
+    const response = await httpGet(url);
     
-    if (!schedules || schedules.length === 0) {
+    if (!response || response.status !== '0' || !response.data) {
       return [];
     }
+
+    const data = response.data;
     
-    return schedules.map(day => ({
-      date: day.date,
-      dateFmt: day.dateFmt,
-      countText: day.countText
-    }));
+    if (data.select && data.select.labels) {
+      return data.select.labels.map(label => ({
+        date: label.date,
+        suffix: label.suffix,
+        desc: label.desc,
+        disabled: label.disabled === '1',
+        icon: label.icon
+      }));
+    }
+    
+    return [];
   } catch (error) {
+    console.warn('获取可用日期失败:', error.message);
     return [];
   }
 }
