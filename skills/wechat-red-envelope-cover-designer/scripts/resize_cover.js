@@ -20,7 +20,7 @@
  *   node resize_cover.js myimage.png all ./output
  */
 
-const sharp = require('sharp');
+let sharp;
 const path = require('path');
 const fs = require('fs');
 
@@ -45,9 +45,13 @@ const DIMENSIONS = {
     ratio: '3:5',
     sizeLimit: 300, // KB
     transparent: true,
+    // 微信红包封面挂件：仅顶部可编辑区域允许出现内容，其余区域应完全透明
+    // 这里按“顶部 324px 可编辑”约束（来自平台编辑器示意图/规范）
+    editableHeightPx: 324,
+    editableRegions: [{ top: 0, height: 324 }],
     safeZone: {
-      top: 0.75,
-      bottom: 0.25
+      top: 324 / 1746,
+      bottom: 1 - 324 / 1746,
     }
   },
   bubble: {
@@ -57,10 +61,12 @@ const DIMENSIONS = {
     ratio: '5:4',
     sizeLimit: 300, // KB
     transparent: true,
-    safeZone: {
-      top: 0.60,
-      bottom: 0.40
-    }
+    // 气泡挂件（480×384）：可编辑区域为上下两段，中间为不可编辑区域
+    // 按平台编辑器示意图：顶部96px可编辑，中间216px不可编辑（必须透明），底部72px可编辑
+    editableRegions: [
+      { top: 0, height: 96 },
+      { top: 384 - 72, height: 72 },
+    ],
   },
   story: {
     name: '封面故事',
@@ -82,6 +88,7 @@ function showHelp() {
 
 使用方法:
   node resize_cover.js <输入图片路径> <类型> [输出路径]
+  node resize_cover.js <输入图片路径> <类型> [输出路径] [--remove-bg|--no-remove-bg] [--bg-tolerance N] [--bg-feather N]
 
 参数说明:
   输入图片路径 - 原始图片路径
@@ -94,6 +101,12 @@ function showHelp() {
   bubble - 气泡挂件: 480×384px, ≤300KB, PNG透明
   story  - 封面故事: 750×1250px, ≤300KB
 
+可选参数（挂件类“假背景/黑底/灰底”清理）：
+  --remove-bg           尝试自动将“近似纯色背景”转为透明（默认：hang/bubble 开启）
+  --no-remove-bg        关闭自动背景清理
+  --bg-tolerance N      背景色容差（默认：22；越大越容易抠掉背景，也越可能误伤主体）
+  --bg-feather N        边缘羽化像素（默认：8；用于减少边缘硬切/黑边）
+
 特性:
   ✓ 自动居中裁剪，保持目标比例
   ✓ 智能压缩，自动调整质量满足大小限制
@@ -103,7 +116,189 @@ function showHelp() {
 示例:
   node resize_cover.js myimage.png cover
   node resize_cover.js myimage.png all ./output
+  node resize_cover.js pendant.png hang --remove-bg --bg-tolerance 26
+  node resize_cover.js bubble.png bubble --remove-bg --bg-tolerance 24 --bg-feather 10
 `);
+}
+
+function parseArgsWithFlags(argv) {
+  const flags = {
+    removeBg: undefined,
+    bgTolerance: 22,
+    bgFeather: 8,
+  };
+
+  const positionals = [];
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+
+    if (a === '--remove-bg') {
+      flags.removeBg = true;
+      continue;
+    }
+    if (a === '--no-remove-bg') {
+      flags.removeBg = false;
+      continue;
+    }
+    if (a === '--bg-tolerance') {
+      const v = argv[i + 1];
+      if (!v || v.startsWith('-')) {
+        console.error('❌ 错误: --bg-tolerance 需要一个数字');
+        process.exit(1);
+      }
+      flags.bgTolerance = Math.max(0, Math.min(255, Number(v)));
+      i++;
+      continue;
+    }
+    if (a === '--bg-feather') {
+      const v = argv[i + 1];
+      if (!v || v.startsWith('-')) {
+        console.error('❌ 错误: --bg-feather 需要一个数字');
+        process.exit(1);
+      }
+      flags.bgFeather = Math.max(0, Math.min(64, Number(v)));
+      i++;
+      continue;
+    }
+
+    positionals.push(a);
+  }
+
+  return { positionals, flags };
+}
+
+function rgbDistance(r1, g1, b1, r2, g2, b2) {
+  const dr = r1 - r2;
+  const dg = g1 - g2;
+  const db = b1 - b2;
+  return Math.sqrt(dr * dr + dg * dg + db * db);
+}
+
+function clamp01(x) {
+  if (x < 0) return 0;
+  if (x > 1) return 1;
+  return x;
+}
+
+function collectBorderSamplePoints(width, regionTop, regionHeight, step) {
+  const points = [];
+  const yTop = regionTop;
+  const yBottom = regionTop + regionHeight - 1;
+
+  for (let x = 0; x < width; x += step) {
+    points.push([x, yTop]);
+    points.push([x, yBottom]);
+  }
+
+  const xLeft = 0;
+  const xRight = width - 1;
+  for (let y = yTop; y <= yBottom; y += step) {
+    points.push([xLeft, y]);
+    points.push([xRight, y]);
+  }
+
+  return points;
+}
+
+function estimateUniformBackgroundColor(raw, width, height, regionTop, regionHeight) {
+  const step = Math.max(4, Math.floor(width / 30));
+  const points = collectBorderSamplePoints(width, regionTop, regionHeight, step);
+
+  const samples = [];
+  for (const [x, y] of points) {
+    if (x < 0 || x >= width || y < 0 || y >= height) continue;
+    const idx = (y * width + x) * 4;
+    const a = raw[idx + 3];
+    if (a < 200) continue; // 跳过透明/半透明边缘
+    samples.push([raw[idx], raw[idx + 1], raw[idx + 2]]);
+  }
+
+  if (samples.length < 20) return null;
+
+  let rSum = 0;
+  let gSum = 0;
+  let bSum = 0;
+  for (const [r, g, b] of samples) {
+    rSum += r;
+    gSum += g;
+    bSum += b;
+  }
+
+  const rMean = Math.round(rSum / samples.length);
+  const gMean = Math.round(gSum / samples.length);
+  const bMean = Math.round(bSum / samples.length);
+
+  let maxDist = 0;
+  for (const [r, g, b] of samples) {
+    const d = rgbDistance(r, g, b, rMean, gMean, bMean);
+    if (d > maxDist) maxDist = d;
+  }
+
+  // 如果边缘采样颜色变化很大，说明背景不单一，跳过自动抠底，避免误伤
+  if (maxDist > 35) return null;
+
+  return { r: rMean, g: gMean, b: bMean };
+}
+
+function removeMatteInRegion(raw, width, height, regionTop, regionHeight, bg, tolerance, feather) {
+  const tol = Math.max(0, tolerance);
+  const fea = Math.max(0, feather);
+
+  const yStart = Math.max(0, regionTop);
+  const yEnd = Math.min(height, regionTop + regionHeight);
+
+  for (let y = yStart; y < yEnd; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const a = raw[idx + 3];
+      if (a === 0) continue;
+
+      const r = raw[idx];
+      const g = raw[idx + 1];
+      const b = raw[idx + 2];
+      const d = rgbDistance(r, g, b, bg.r, bg.g, bg.b);
+
+      if (d <= tol) {
+        raw[idx + 3] = 0;
+        continue;
+      }
+
+      if (fea > 0 && d < tol + fea) {
+        const t = clamp01((d - tol) / fea);
+        raw[idx + 3] = Math.round(a * t);
+      }
+    }
+  }
+}
+
+async function tryAutoRemoveMatteBackground(buffer, config, options) {
+  const width = config.width;
+  const height = config.height;
+  const editableRegions = config.editableRegions || (config.editableHeightPx ? [{ top: 0, height: config.editableHeightPx }] : []);
+  if (!Array.isArray(editableRegions) || editableRegions.length === 0) return buffer;
+
+  const { data } = await sharp(buffer)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const raw = Buffer.from(data);
+
+  const tolerance = options.bgTolerance;
+  const feather = options.bgFeather;
+
+  for (const region of editableRegions) {
+    const regionTop = Math.max(0, Math.min(region.top, height - 1));
+    const regionHeight = Math.max(0, Math.min(region.height, height - regionTop));
+    if (!regionHeight) continue;
+
+    const bg = estimateUniformBackgroundColor(raw, width, height, regionTop, regionHeight);
+    if (!bg) continue;
+
+    removeMatteInRegion(raw, width, height, regionTop, regionHeight, bg, tolerance, feather);
+  }
+
+  return sharp(raw, { raw: { width, height, channels: 4 } }).png().toBuffer();
 }
 
 async function getImageInfo(inputPath) {
@@ -246,7 +441,7 @@ async function compressToLimit(buffer, type, sizeLimitKB, isTransparent) {
   };
 }
 
-async function processImage(inputPath, type, outputPath) {
+async function processImage(inputPath, type, outputPath, options) {
   const config = DIMENSIONS[type];
   const imgInfo = await getImageInfo(inputPath);
   
@@ -270,13 +465,71 @@ async function processImage(inputPath, type, outputPath) {
   
   console.log(`   裁剪: ${cropWidth}×${cropHeight}px → ${config.width}×${config.height}px`);
   
-  // 如果需要透明背景，先添加alpha通道（如果是PNG但没有alpha）
+  // 挂件类需要透明背景：统一强制输出PNG+alpha，避免输入是JPG时丢失透明信息
   if (config.transparent) {
-    const metadata = await sharp(processedBuffer).metadata();
-    if (!metadata.hasAlpha) {
-      processedBuffer = await sharp(processedBuffer)
-        .ensureAlpha()
+    processedBuffer = await sharp(processedBuffer).ensureAlpha().png().toBuffer();
+  }
+
+  // 强制限制可编辑区域：仅允许指定区域内出现任何不透明像素。
+  // 这样即便生成图“画满了整张”，最终交付也会自动裁掉不可编辑区域的内容。
+  if (config.transparent && Array.isArray(config.editableRegions) && config.editableRegions.length > 0) {
+    const composites = [];
+
+    for (const region of config.editableRegions) {
+      const regionTop = Math.max(0, Math.min(region.top, config.height - 1));
+      const regionHeight = Math.max(0, Math.min(region.height, config.height - regionTop));
+      if (!regionHeight) continue;
+
+      const extracted = await sharp(processedBuffer)
+        .extract({ left: 0, top: regionTop, width: config.width, height: regionHeight })
         .toBuffer();
+
+      composites.push({ input: extracted, left: 0, top: regionTop });
+    }
+
+    processedBuffer = await sharp({
+      create: {
+        width: config.width,
+        height: config.height,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      },
+    })
+      .composite(composites)
+      .png()
+      .toBuffer();
+  } else if (config.transparent && config.editableHeightPx) {
+    // 兼容旧配置：仅顶部可编辑
+    const editableHeight = Math.min(config.editableHeightPx, config.height);
+
+    const topRegion = await sharp(processedBuffer)
+      .extract({ left: 0, top: 0, width: config.width, height: editableHeight })
+      .toBuffer();
+
+    processedBuffer = await sharp({
+      create: {
+        width: config.width,
+        height: config.height,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      },
+    })
+      .composite([{ input: topRegion, left: 0, top: 0 }])
+      .png()
+      .toBuffer();
+  }
+
+  // 自动清理“假背景/纯色底”（仅挂件类）：
+  // - 通过边缘采样推断背景色
+  // - 将与背景色接近的像素转为透明（带轻微羽化）
+  if (config.transparent) {
+    const defaultRemove = type === 'hang' || type === 'bubble';
+    const removeBg = options?.removeBg ?? defaultRemove;
+    if (removeBg) {
+      processedBuffer = await tryAutoRemoveMatteBackground(processedBuffer, config, {
+        bgTolerance: options?.bgTolerance ?? 22,
+        bgFeather: options?.bgFeather ?? 8,
+      });
     }
   }
   
@@ -364,7 +617,9 @@ async function batchResize(inputPath, outputDir) {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
+  const parsed = parseArgsWithFlags(process.argv.slice(2));
+  const args = parsed.positionals;
+  const flags = parsed.flags;
   
   if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
     showHelp();
@@ -374,6 +629,7 @@ async function main() {
   // 检查sharp是否安装
   try {
     require.resolve('sharp');
+    sharp = require('sharp');
   } catch (e) {
     console.error('❌ 错误: 缺少依赖 "sharp"');
     console.error('   请先安装: npm install sharp');
@@ -414,11 +670,31 @@ async function main() {
     outputPath = path.join(dir, `${baseName}_${type}.png`);
   }
   
-  await processImage(inputPath, type, outputPath);
+  await processImage(inputPath, type, outputPath, {
+    removeBg: flags.removeBg,
+    bgTolerance: flags.bgTolerance,
+    bgFeather: flags.bgFeather,
+  });
   
   // 显示安全区域提示
   const config = DIMENSIONS[type];
   console.log(`\n💡 安全区域提示:`);
+  if (Array.isArray(config.editableRegions) && config.editableRegions.length > 0) {
+    if (type === 'hang') {
+      console.log(`   - 仅顶部${config.editableRegions[0].height}px可编辑/可出现元素`);
+      console.log(`   - 其余区域必须完全透明留空`);
+      return;
+    }
+    if (type === 'bubble') {
+      const top = config.editableRegions[0];
+      const bottom = config.editableRegions[1];
+      const middle = config.height - top.height - bottom.height;
+      console.log(`   - 顶部${top.height}px可编辑/可出现元素`);
+      console.log(`   - 中间${middle}px必须完全透明留空（不可编辑区域）`);
+      console.log(`   - 底部${bottom.height}px可编辑/可出现元素`);
+      return;
+    }
+  }
   if (config.safeZone.top && config.safeZone.middle && config.safeZone.bottom) {
     console.log(`   - 上方${(config.safeZone.top * 100).toFixed(0)}%: 保持简洁，确保文字可读`);
     console.log(`   - 中部${(config.safeZone.middle * 100).toFixed(0)}%: 主要视觉元素区域`);
