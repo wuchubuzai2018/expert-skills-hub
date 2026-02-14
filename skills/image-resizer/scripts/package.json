@@ -1,0 +1,21 @@
+{
+  "name": "image-resizer",
+  "version": "1.0.0",
+  "description": "图片尺寸调整和压缩工具 - 支持按像素宽高、比例、尺寸限制进行调整和压缩",
+  "main": "resize_image.js",
+  "scripts": {
+    "resize": "node resize_image.js"
+  },
+  "dependencies": {
+    "sharp": "^0.32.6"
+  },
+  "keywords": [
+    "image",
+    "resize",
+    "compress",
+    "thumbnail",
+    "crop"
+  ],
+  "author": "",
+  "license": "MIT"
+}
