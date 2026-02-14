@@ -1,0 +1,22 @@
+{
+  "name": "wechat-red-envelope-resize",
+  "version": "1.0.0",
+  "description": "微信红包封面图片尺寸裁剪工具 - 支持封面图、封面挂件、气泡挂件、封面故事的尺寸转换",
+  "main": "resize_cover.js",
+  "scripts": {
+    "resize": "node resize_cover.js"
+  },
+  "dependencies": {
+    "sharp": "^0.32.6"
+  },
+  "keywords": [
+    "wechat",
+    "red-envelope",
+    "cover",
+    "image",
+    "resize",
+    "crop"
+  ],
+  "author": "",
+  "license": "MIT"
+}
