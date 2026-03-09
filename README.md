@@ -6,12 +6,16 @@
 
 | 技能 | 简介 | 详情 |
 |---|---|---|
-| nano-banana-pro-image-gen | AI 图片生成（文生图 / 图生图编辑），支持多种比例与分辨率 | [skills/nano-banana-pro-image-gen/SKILL.md](skills/nano-banana-pro-image-gen/SKILL.md) |
+| nano-banana-2-image-gen | 基于 Nano Banana 2 的 AI 图片生成与编辑（文生图 / 图生图），支持 14 种比例与 1K/2K/4K 分辨率 | [skills/nano-banana-2-image-gen/SKILL.md](skills/nano-banana-2-image-gen/SKILL.md) |
+| nano-banana-pro-image-gen | 基于NanoBananaPro的AI 图片生成（文生图 / 图生图编辑），支持多种比例与分辨率 | [skills/nano-banana-pro-image-gen/SKILL.md](skills/nano-banana-pro-image-gen/SKILL.md) |
 | pdf-to-image-preview | PDF 转图片（逐页导出 PNG/JPG，支持分辨率配置） | [skills/pdf-to-image-preview/SKILL.md](skills/pdf-to-image-preview/SKILL.md) |
 | juejin-article-trends | 掘金热门文章榜单（分类列表 + 热门/最新文章） | [skills/juejin-article-trends/SKILL.md](skills/juejin-article-trends/SKILL.md) |
 | baidu-milan-winter-olympics-2026 | 2026 米兰冬奥会数据（奖牌榜、现场新闻、赛程） | [skills/baidu-milan-winter-olympics-2026/SKILL.md](skills/baidu-milan-winter-olympics-2026/SKILL.md) |
+| image-resizer | 图片尺寸调整与压缩工具，支持按像素、比例、最大尺寸和目标文件大小处理图片 | [skills/image-resizer/SKILL.md](skills/image-resizer/SKILL.md) |
 | toutiao-news-trends | 今日头条新闻热榜（热点标题、热度值、跳转链接、封面图） | [skills/toutiao-news-trends/SKILL.md](skills/toutiao-news-trends/SKILL.md) |
 | wechat-article-search | 微信公众号文章搜索（标题、概要、发布时间、公众号名称与链接） | [skills/wechat-article-search/SKILL.md](skills/wechat-article-search/SKILL.md) |
+| wechat-red-envelope-cover-designer | 微信红包封面设计，支持生成封面图、挂件、气泡挂件和封面故事等完整素材套件 | [skills/wechat-red-envelope-cover-designer/SKILL.md](skills/wechat-red-envelope-cover-designer/SKILL.md) |
+
 
 ## 🚀 技能安装
 
