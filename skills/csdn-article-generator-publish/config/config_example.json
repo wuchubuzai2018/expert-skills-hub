@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "Cookie": "your_cookie_here",
+    "x-ca-nonce": "xxxxxx",
+    "x-ca-signature": "xxxxxxxx",
+    "x-ca-signature-headers": "x-ca-key,x-ca-nonce",
+    "x-ca-key": "xxxxxxxx"
+  },
+  "defaults": {
+    "readType": "public",
+    "type": "original",
+    "pubStatus": "draft",
+    "creation_statement": 0,
+    "tags": "",
+    "categories": "",
+    "description": ""
+  }
+}
