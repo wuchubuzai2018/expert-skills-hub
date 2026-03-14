@@ -1,12 +1,13 @@
 ---
 name: csdn-article-generator-publish
-description: csdn blog skills,CSDN博客文章生成与发布技能。实现CSDN博客网站的文章的创建、保存草稿、更新和发布。适用场景：(1) 用户请求"帮我写一篇XX文章，保存到CSDN" (2) 用户请求"更新我CSDN上的某篇文章" (3) 用户请求"发布我的CSDN文章" 时调用此技能
+description: csdn blog article generator skills,CSDN博客文章生成与发布技能。实现CSDN博客网站的文章的创建、保存草稿、更新和发布。适用场景：(1) 用户请求"帮我写一篇XX文章，保存到CSDN" (2) 用户请求"更新我CSDN上的某篇文章" (3) 用户请求"发布我的CSDN文章" 时调用此技能
 ---
 
 # CSDN Article Generator Publish Skills
 
 ## 技能概述
 
+- 支持读取指定目录下的 Markdown 文件内容，并将其保存为 CSDN 草稿
 - 生成 Markdown 文章并保存到本地文件
 - 保存 Markdown 文章为 CSDN 草稿
 - 根据文章 ID 更新文章
@@ -25,7 +26,7 @@ description: csdn blog skills,CSDN博客文章生成与发布技能。实现CSDN
 
 ### 步骤 1：配置请求头
 
-用户需在当前工作目录创建 `csdn_config.json`，若文件不存在请引导并提醒用户，文件需要根据示例文档进行更改 [config_example.json](config/config_example.json)
+判断当前目录下是否存在 `csdn_config.json` 文件，若文件不存在请复制 `config/config_example.json`到工作目录下，并重命名为 `csdn_config.json`，文件需要根据示例文档让用户进行更改，填写请求头信息： [config_example.json](config/config_example.json)
 
 #### 获取请求头方法
 
@@ -124,7 +125,7 @@ node skills/csdn-article-generator-publish/scripts/csdn_article.js publish \
 | tags | 标签（逗号分隔，最多5个） | python,async |
 | readType | 可见范围 | public(默认值), private, read_need_fans, read_need_vip |
 | type | 文章类型 | original(默认值), repost, translated |
-| creation_statement | 创作者声明 | 0=无声明(默认值), 1=部分内容由AI辅助生成, 2=内容来源网络进行整合创作, 3=个人观点，仅供参考 |
+| creation_statement | 创作声明 | 0=无声明(默认值), 1=部分内容由AI辅助生成, 2=内容来源网络进行整合创作, 3=个人观点，仅供参考 |
 | description | 文章摘要（最大256字） | - |
 
 详细 API 参数见 [api_reference.md](references/api_reference.md)

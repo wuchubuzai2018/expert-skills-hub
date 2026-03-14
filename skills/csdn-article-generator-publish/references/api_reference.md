@@ -29,8 +29,8 @@
 | type | No | original | 文章类型 |
 | tags | No | - | 标签，逗号分隔，最多5个 |
 | categories | No | - | 分类 |
-| description | No | - | 摘要，最大256字 |
-| creation_statement | No | 0 | 创作者声明 |
+| Description | No | - | 摘要，最大256字,发布时需要填写 |
+| creation_statement | No | 0 | 创作声明 0=无声明(默认值), 1=部分内容由AI辅助生成, 2=内容来源网络进行整合创作, 3=个人观点，仅供参考 |
 | status | No | 2 | 状态 2-草稿 0-发布 |
 | cover_type | No | 1 | 封面类型 |
 | authorized_status | No | false | 授权状态 |
