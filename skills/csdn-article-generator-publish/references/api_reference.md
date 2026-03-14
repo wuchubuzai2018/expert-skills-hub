@@ -31,7 +31,7 @@
 | categories | No | - | 分类 |
 | description | No | - | 摘要，最大256字 |
 | creation_statement | No | 0 | 创作者声明 |
-| status | No | 2 | 状态 |
+| status | No | 2 | 状态 2-草稿 0-发布 |
 | cover_type | No | 1 | 封面类型 |
 | authorized_status | No | false | 授权状态 |
 | source | No | pc_mdeditor | 来源 |

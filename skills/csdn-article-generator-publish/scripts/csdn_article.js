@@ -123,14 +123,18 @@ function buildPayload(args, config) {
     process.exit(1);
   }
   
+  const isPublish = extra.pubStatus === 'publish' || (args.command === 'publish');
+  
   const payload = {
+    id: args.id ? String(args.id) : undefined,
     title: args.title,
-    content: content,
+    content:content,
     markdowncontent: content,
+    Description: extra.description || defaults.description || '',
     readType: extra.readType || defaults.readType || 'public',
     level: 0,
     tags: extra.tags || defaults.tags || '',
-    status: 2,
+    status: isPublish ? 0 : 2,
     categories: extra.categories || defaults.categories || '',
     type: extra.type || defaults.type || 'original',
     original_link: '',
@@ -143,16 +147,9 @@ function buildPayload(args, config) {
     vote_id: 0,
     resource_id: '',
     pubStatus: extra.pubStatus || defaults.pubStatus || 'draft',
-    creation_statement: extra.creation_statement || defaults.creation_statement || 0,
-    creator_activity_id: '',
-    ...extra,
-    ...defaults,
-    pubStatus: extra.pubStatus || defaults.pubStatus || 'draft'
+    creation_statement: extra.creation_statement !== undefined ? extra.creation_statement : (defaults.creation_statement !== undefined ? defaults.creation_statement : 0),
+    creator_activity_id: ''
   };
-  
-  if (args.id) {
-    payload.id = args.id;
-  }
   
   return payload;
 }
@@ -181,7 +178,6 @@ function post(url, headers, data) {
         }
       });
     });
-    
     req.on('error', reject);
     req.write(JSON.stringify(data));
     req.end();
