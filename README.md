@@ -13,6 +13,7 @@
 | baidu-milan-winter-olympics-2026 | 2026 米兰冬奥会数据（奖牌榜、现场新闻、赛程） | [skills/baidu-milan-winter-olympics-2026/SKILL.md](skills/baidu-milan-winter-olympics-2026/SKILL.md) |
 | image-resizer | 图片尺寸调整与压缩工具，支持按像素、比例、最大尺寸和目标文件大小处理图片 | [skills/image-resizer/SKILL.md](skills/image-resizer/SKILL.md) |
 | toutiao-news-trends | 今日头条新闻热榜（热点标题、热度值、跳转链接、封面图） | [skills/toutiao-news-trends/SKILL.md](skills/toutiao-news-trends/SKILL.md) |
+| csdn-article-publish | CSDN 博客文章生成与发布工具，支持保存草稿、更新文章、发布文章，以及 Markdown 转 HTML 提交 | [skills/csdn-article-publish/SKILL.md](skills/csdn-article-publish/SKILL.md) |
 | wechat-article-search | 微信公众号文章搜索（标题、概要、发布时间、公众号名称与链接） | [skills/wechat-article-search/SKILL.md](skills/wechat-article-search/SKILL.md) |
 | wechat-red-envelope-cover-designer | 微信红包封面设计，支持生成封面图、挂件、气泡挂件和封面故事等完整素材套件 | [skills/wechat-red-envelope-cover-designer/SKILL.md](skills/wechat-red-envelope-cover-designer/SKILL.md) |
 
