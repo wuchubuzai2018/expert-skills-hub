@@ -11,6 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const { markdownToHtml } = require('./markdown_to_html');
 
 const DEFAULT_CONFIG_FILE = 'csdn_config.json';
 const DEFAULT_ARTICLE_MAP_FILE = 'csdn_article_map.json';
@@ -385,11 +386,12 @@ function buildPayload(args, config) {
   const defaults = config.defaults || {};
   const extra = args.extra || {};
   const isPublish = extra.pubStatus === 'publish' || args.command === 'publish';
+  const htmlContent = markdownToHtml(args.content);
   
   const payload = {
     id: args.id ? String(args.id) : undefined,
     title: args.title,
-    content: args.content,
+    content: htmlContent,
     markdowncontent: args.content,
     Description: extra.description || defaults.description || '',
     readType: extra.readType || defaults.readType || 'public',
@@ -560,7 +562,15 @@ async function main() {
   log.step(`User-Agent: ${headers['user-agent'].substring(0, 60)}...`);
   
   log.step('Building request payload...');
-  const payload = buildPayload(buildArgs, config);
+  let payload;
+
+  try {
+    payload = buildPayload(buildArgs, config);
+  } catch (error) {
+    log.error(`Failed to convert Markdown to HTML: ${error.message}`);
+    process.exit(1);
+  }
+
   const inputErrors = validateResolvedInput(command, payload, resolvedInput.resolvedFilePath);
 
   if (inputErrors.length > 0) {

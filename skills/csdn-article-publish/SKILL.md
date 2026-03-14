@@ -1,9 +1,9 @@
 ---
-name: csdn-article-generator-publish
-description: csdn blog article generator skills,CSDN博客文章生成与发布技能。实现CSDN博客网站的文章的创建、保存草稿、更新和发布。适用场景：(1) 用户请求"帮我写一篇XX文章，保存到CSDN" (2) 用户请求"更新我CSDN上的某篇文章" (3) 用户请求"发布我的CSDN文章" 时调用此技能
+name: csdn-article-publish
+description: csdn blog article publish skills,CSDN博客文章生成与发布技能。实现CSDN博客网站的文章的创建、保存草稿、更新和发布。适用场景：(1) 用户请求"帮我写一篇XX文章，保存到CSDN" (2) 用户请求"更新我CSDN上的某篇文章" (3) 用户请求"发布我的CSDN文章" 时调用此技能
 ---
 
-# CSDN Article Generator Publish Skills
+# CSDN Blog Article Publish Skills
 
 ## 技能概述
 
@@ -91,17 +91,17 @@ mkdir -p csdnarticle
 
 ```bash
 # 方式1：通过 --file 参数指定 Markdown 文件（推荐）
-node skills/csdn-article-generator-publish/scripts/csdn_article.js save \
+node {skills目录}/scripts/csdn_article.js save \
   --title "Python 异步编程实战" \
   --file csdnarticle/Python异步编程实战.md
 
 # 方式2：通过 --content 参数直接传递内容
-node skills/csdn-article-generator-publish/scripts/csdn_article.js save \
+node {skills目录}/scripts/csdn_article.js save \
   --title "Python 异步编程实战" \
   --content "# Python 异步编程实战\n\n## 简介\n\n本文介绍Python异步编程..."
 
 # 方式3：仅使用 --file 参数，自动提取文件名作为标题
-node skills/csdn-article-generator-publish/scripts/csdn_article.js save \
+node {skills目录}/scripts/csdn_article.js save \
   --file csdnarticle/Python异步编程实战.md
 ```
 
@@ -122,7 +122,7 @@ node skills/csdn-article-generator-publish/scripts/csdn_article.js save \
 使用 `publish` 命令，通过 `--extra` 参数传递发布配置：
 
 ```bash
-node skills/csdn-article-generator-publish/scripts/csdn_article.js publish \
+node {skills目录}/scripts/csdn_article.js publish \
   --id 159048943 \
   --title "Python 异步编程实战" \
   --file csdnarticle/Python异步编程实战.md \
@@ -162,26 +162,26 @@ node skills/csdn-article-generator-publish/scripts/csdn_article.js publish \
 
 ```bash
 # 首次保存，生成本地映射
-node skills/csdn-article-generator-publish/scripts/csdn_article.js save \
+node {skills目录}/scripts/csdn_article.js save \
   --file csdnarticle/Python异步编程实战.md
 
 # 之后基于同一个文件更新，既可以继续传 --id，也可以直接复用映射
-node skills/csdn-article-generator-publish/scripts/csdn_article.js update \
+node {skills目录}/scripts/csdn_article.js update \
   --id 159048943 \
   --file csdnarticle/Python异步编程实战.md
 
 # 或者省略 --id，自动从本地映射读取
-node skills/csdn-article-generator-publish/scripts/csdn_article.js update \
+node {skills目录}/scripts/csdn_article.js update \
   --file csdnarticle/Python异步编程实战.md
 
 # 发布时同样既支持显式传 --id，也支持直接复用映射
-node skills/csdn-article-generator-publish/scripts/csdn_article.js publish \
+node {skills目录}/scripts/csdn_article.js publish \
   --id 159048943 \
   --file csdnarticle/Python异步编程实战.md \
   --extra '{"tags":"python,async","description":"Python 异步编程的实战经验总结","creation_statement":1}'
 
 # 或者省略 --id，自动从本地映射读取
-node skills/csdn-article-generator-publish/scripts/csdn_article.js publish \
+node {skills目录}/scripts/csdn_article.js publish \
   --file csdnarticle/Python异步编程实战.md \
   --extra '{"tags":"python,async","description":"Python 异步编程的实战经验总结","creation_statement":1}'
 ```
@@ -189,7 +189,7 @@ node skills/csdn-article-generator-publish/scripts/csdn_article.js publish \
 ## 目录结构
 
 ```
-csdn-article-generator-publish/
+csdn-article-publish/
 ├── SKILL.md                          # 技能说明文档
 ├── scripts/
 │   └── csdn_article.js              # Node.js 脚本（核心执行脚本）

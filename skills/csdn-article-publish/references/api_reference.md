@@ -23,6 +23,7 @@
 |-------|----------|---------|-------------|
 | id | Update Only | - | 文章ID，更新时必需 |
 | title | Yes | - | 文章标题 |
+| content | Yes | - | HTML 格式正文内容 |
 | markdowncontent | Yes | - | Markdown格式文章内容 |
 | pubStatus | No | draft | 发布状态: draft/publish |
 | readType | No | public | 可见范围 |
