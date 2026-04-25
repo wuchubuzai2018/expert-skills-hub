@@ -16,7 +16,6 @@
 - -o, --output-format      输出格式（可选：png/jpeg/webp，默认png）
 - -c, --output-compression 输出压缩率（可选：0-100，默认85）
 - -i, --input-image       输入图片路径（可选，可多张，最多5张）
-- -k, --api-key           API密钥（可选，覆盖环境变量 APIYI_API_KEY）
 
 使用示例：
 【生成新图片】
@@ -60,7 +59,6 @@ function printHelpAndExit(exitCode = 0) {
                         [--output-format png|jpeg|webp]
                         [--output-compression 0-100]
                         [--input-image INPUT_IMAGE [INPUT_IMAGE ...]]
-                        [--api-key API_KEY]
 
 基于GPT Image 2官方正式版的图片生成与编辑工具（Node.js版）
 
@@ -73,7 +71,6 @@ options:
   -o, --output-format     输出格式 (可选: png, jpeg, webp)
   -c, --output-compression 输出压缩率 (0-100，仅jpeg/webp生效)
   -i, --input-image      输入图片路径（编辑模式，可传多张，最多5张）
-  -k, --api-key        API密钥（覆盖环境变量）
 
 尺寸说明：
   - 预设值: 1024x1024, 1536x1024, 1024x1536, 2048x2048, 2048x1152, 3840x2160, 2160x3840
@@ -127,14 +124,12 @@ function generateFilename(prompt) {
   return `${timestamp}-${keywordStr}.png`;
 }
 
-function getApiKey(argsKey) {
-  if (argsKey) return argsKey;
+function getApiKey() {
   const apiKey = process.env.APIYI_API_KEY;
   if (!apiKey) {
     exitWithError(
       '错误: 未设置 APIYI_API_KEY 环境变量\n' +
-        '请前往 https://api.apiyi.com 注册申请API Key\n' +
-        '或使用 -k/--api-key 参数临时指定'
+        '请前往 https://api.apiyi.com 注册申请API Key'
     );
   }
   return apiKey;
@@ -158,7 +153,6 @@ function parseArgs(argv) {
     outputFormat: null,
     outputCompression: null,
     inputImages: null,
-    apiKey: null,
   };
 
   const knownFlags = new Set([
@@ -170,7 +164,6 @@ function parseArgs(argv) {
     '-o', '--output-format',
     '-c', '--output-compression',
     '-i', '--input-image',
-    '-k', '--api-key',
   ]);
 
   function requireValue(i, flag) {
@@ -220,12 +213,6 @@ function parseArgs(argv) {
 
     if (a === '-c' || a === '--output-compression') {
       args.outputCompression = requireValue(i, a);
-      i++;
-      continue;
-    }
-
-    if (a === '-k' || a === '--api-key') {
-      args.apiKey = requireValue(i, a);
       i++;
       continue;
     }
@@ -459,7 +446,7 @@ async function main() {
     }
   }
 
-  const apiKey = getApiKey(args.apiKey);
+  const apiKey = getApiKey();
   const headers = {
     Authorization: `Bearer ${apiKey}`,
   };

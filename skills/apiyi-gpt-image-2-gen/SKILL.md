@@ -156,6 +156,13 @@ node scripts/generate_image.js -p "把图1的人物放进图2的场景" -i ref1.
 | `-c` / `--output-compression` | 否 | 输出压缩率（0-100），仅jpeg/webp生效。 |
 | `-i` / `--input-image` | 否 | 图生图输入图片路径；可传多张（最多5张）。传入该参数即进入编辑模式。 |
 
+## 脚本说明
+
+| 脚本 | 说明 |
+|------|------|
+| `scripts/generate_image.js` | Node.js 版本（零依赖，优先使用） |
+| `scripts/generate_image.py` | Python 版本（备选） |
+
 ## 尺寸说明
 
 ### 预设尺寸
@@ -221,25 +228,19 @@ node scripts/generate_image.js -p "把图1的人物放进图2的场景" -i ref1.
 
 #### 设置API Key
 
-脚本按以下顺序查找API密钥：
-1. `--api-key` 命令行参数（临时使用）
-2. `APIYI_API_KEY` 环境变量（推荐）
+脚本从环境变量 `APIYI_API_KEY` 获取API密钥。
 
-**设置环境变量（推荐）：**
+**设置环境变量：**
 ```bash
 # Linux/Mac
 export APIYI_API_KEY="your-api-key-here"
 
+我的电脑高级设置中设置环境变量或者执行set 命令：
 # Windows CMD
-我的电脑高级设置中设置环境变量或者执行set APIYI_API_KEY=your-api-key-here
+set APIYI_API_KEY=your-api-key-here
 
 # Windows PowerShell
-在我的电脑中设置环境变量:$env:APIYI_API_KEY="your-api-key-here"
-```
-
-**命令行参数方式（临时）：**
-```bash
-python scripts/generate_image.py -p "一只猫" -k "your-api-key-here"
+$env:APIYI_API_KEY="your-api-key-here"
 ```
 
 ## API端点说明

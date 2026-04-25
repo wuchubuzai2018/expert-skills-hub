@@ -149,6 +149,13 @@ node scripts/generate_image.js -p "融合图1和图2的风格" -i ref1.png ref2.
 | `-r` / `--response-format` | 否 | 响应格式：`url`（默认，R2 CDN链接）或 `b64_json`（base64图片数据）。 |
 | `-i` / `--input-image` | 否 | 图生图输入图片路径；可传多张（最多5张）。传入该参数即进入编辑模式。 |
 
+## 脚本说明
+
+| 脚本 | 说明 |
+|------|------|
+| `scripts/generate_image.js` | Node.js 版本（零依赖，优先使用） |
+| `scripts/generate_image.py` | Python 版本（备选） |
+
 ## 图片比例说明
 
 由于gpt-image-2-all模型没有size参数，尺寸通过prompt描述控制。经验证较稳定的写法：
@@ -197,25 +204,18 @@ node scripts/generate_image.js -p "融合图1和图2的风格" -i ref1.png ref2.
 
 #### 设置API Key
 
-脚本按以下顺序查找API密钥：
-1. `--api-key` 命令行参数（临时使用）
-2. `APIYI_API_KEY` 环境变量（推荐）
+脚本从环境变量 `APIYI_API_KEY` 获取API密钥。
 
-**设置环境变量（推荐）：**
+**设置环境变量：**
 ```bash
 # Linux/Mac
 export APIYI_API_KEY="your-api-key-here"
 
 # Windows CMD
-我的电脑高级设置中设置环境变量或者执行set APIYI_API_KEY=your-api-key-here
+set APIYI_API_KEY=your-api-key-here
 
 # Windows PowerShell
-在我的电脑中设置环境变量:$env:APIYI_API_KEY="your-api-key-here"
-```
-
-**命令行参数方式（临时）：**
-```bash
-python scripts/generate_image.py -p "一只猫" -k "your-api-key-here"
+$env:APIYI_API_KEY="your-api-key-here"
 ```
 
 ## API端点说明

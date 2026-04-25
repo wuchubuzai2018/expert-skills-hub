@@ -13,7 +13,6 @@
 - -f, --filename       输出图片路径（可选，默认自动生成时间戳文件名）
 - -r, --response-format 响应格式（可选：url/b64_json，默认url）
 - -i, --input-image    输入图片路径（可选，可多张，最多5张）
-- -k, --api-key        API密钥（可选，覆盖环境变量 APIYI_API_KEY）
 
 使用示例：
 【生成新图片】
@@ -43,7 +42,6 @@ function printHelpAndExit(exitCode = 0) {
   const help = `usage: generate_image.js [-h] --prompt PROMPT [--filename FILENAME]
                         [--response-format url|b64_json]
                         [--input-image INPUT_IMAGE [INPUT_IMAGE ...]]
-                        [--api-key API_KEY]
 
 基于GPT Image 2 All的图片生成与编辑工具（Node.js版）
 
@@ -53,7 +51,6 @@ options:
   -f, --filename FILE        输出图片路径 (默认: 自动生成时间戳文件名)
   -r, --response-format      响应格式 (可选: url, b64_json，默认url)
   -i, --input-image         输入图片路径（编辑模式，可传多张，最多5张）
-  -k, --api-key             API密钥（覆盖环境变量）
 
 尺寸说明（通过prompt描述，无显式size参数）：
   - 方形: 1024×1024 方图 / 1:1 方形构图
@@ -110,14 +107,12 @@ function generateFilename(prompt) {
   return `${timestamp}-${keywordStr}.png`;
 }
 
-function getApiKey(argsKey) {
-  if (argsKey) return argsKey;
+function getApiKey() {
   const apiKey = process.env.APIYI_API_KEY;
   if (!apiKey) {
     exitWithError(
       '错误: 未设置 APIYI_API_KEY 环境变量\n' +
-        '请前往 https://api.apiyi.com 注册申请API Key\n' +
-        '或使用 -k/--api-key 参数临时指定'
+        '请前往 https://api.apiyi.com 注册申请API Key'
     );
   }
   return apiKey;
@@ -191,7 +186,6 @@ function parseArgs(argv) {
     filename: null,
     responseFormat: null,
     inputImages: null,
-    apiKey: null,
   };
 
   const knownFlags = new Set([
@@ -205,8 +199,6 @@ function parseArgs(argv) {
     '--response-format',
     '-i',
     '--input-image',
-    '-k',
-    '--api-key',
   ]);
 
   function requireValue(i, flag) {
@@ -238,12 +230,6 @@ function parseArgs(argv) {
 
     if (a === '-r' || a === '--response-format') {
       args.responseFormat = requireValue(i, a);
-      i++;
-      continue;
-    }
-
-    if (a === '-k' || a === '--api-key') {
-      args.apiKey = requireValue(i, a);
       i++;
       continue;
     }
@@ -350,7 +336,7 @@ async function main() {
     }
   }
 
-  const apiKey = getApiKey(args.apiKey);
+  const apiKey = getApiKey();
   const url = 'https://api.apiyi.com/v1/chat/completions';
 
   const headers = {
