@@ -134,15 +134,11 @@ python scripts/generate_image.py -p "将背景换成海滩" -f "beach-bg.png" -i
 # 修改风格
 node scripts/generate_image.js -p "将图片转换成水彩画风格" -f "watercolor.png" -i "original.png"
 
-# 多��参考图融合（最多5张）
+# 多图参考图融合（最多5张）
 node scripts/generate_image.js -p "把图1的人物放进图2的场景" -i ref1.png ref2.png -f "merged.png"
 ```
 
-## 附加资源
-
-- 尺寸与比例控制文档：references/size-guide.md
-
-## 命令行参数说明
+   ## 命令行参数说明
 
 > Python 与 Node.js 版本参数保持一致（短参数与长参数等价）。
 
@@ -156,34 +152,14 @@ node scripts/generate_image.js -p "把图1的人物放进图2的场景" -i ref1.
 | `-c` / `--output-compression` | 否 | 输出压缩率（0-100），仅jpeg/webp生效。 |
 | `-i` / `--input-image` | 否 | 图生图输入图片路径；可传多张（最多5张）。传入该参数即进入编辑模式。 |
 
-## 脚本说明
 
-| 脚本 | 说明 |
+## 文件资源说明
+
+| 资源 | 说明 |
 |------|------|
-| `scripts/generate_image.js` | Node.js 版本（零依赖，优先使用） |
-| `scripts/generate_image.py` | Python 版本（备选） |
-
-## 尺寸说明
-
-### 预设尺寸
-
-| 尺寸 | 比例 | 适用场景 |
-|------|------|----------|
-| 1024x1024 | 1:1 | 头像、Instagram帖子 |
-| 1536x1024 | 3:2 | 标准横版 |
-| 1024x1536 | 2:3 | 标准竖版 |
-| 2048x2048 | 1:1 | 高清方图 |
-| 2048x1152 | 16:9 | 横版视频封面、桌面壁纸 |
-| 3840x2160 | 16:9 | 4K超高清 |
-| 2160x3840 | 9:16 | 竖版4K |
-
-### 自定义尺寸
-
-可使用任意合法自定义尺寸，需满足：
-- 最大边 ≤ 3840
-- 两边都能被16整除
-- 比例 ≤ 3:1
-- 总像素 0.65–8.3MP
+| [`scripts/generate_image.js`](scripts/generate_image.js) | Node.js 版本（零依赖，优先使用） |
+| [`scripts/generate_image.py`](scripts/generate_image.py) | Python 版本（备选） |
+| [`references/size-guide.md`](references/size-guide.md) | 尺寸与比例控制文档，需要时使用，按需加载 |
 
 ## 画质说明
 
@@ -281,3 +257,5 @@ $env:APIYI_API_KEY="your-api-key-here"
 
 ## 作者介绍
 
+- 爱海贼的无处不在
+- 我的微信公众号：无处不在的技术

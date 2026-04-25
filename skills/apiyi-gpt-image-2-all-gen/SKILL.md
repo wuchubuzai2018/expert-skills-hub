@@ -134,10 +134,6 @@ node scripts/generate_image.js -p "将图片转换成水彩画风格" -f "waterc
 node scripts/generate_image.js -p "融合图1和图2的风格" -i ref1.png ref2.png -f "merged.png"
 ```
 
-## 附加资源
-
-- 尺寸与比例控制文档：references/size-guide.md
-
 ## 命令行参数说明
 
 > Python 与 Node.js 版本参数保持一致（短参数与长参数等价）。
@@ -149,12 +145,13 @@ node scripts/generate_image.js -p "融合图1和图2的风格" -i ref1.png ref2.
 | `-r` / `--response-format` | 否 | 响应格式：`url`（默认，R2 CDN链接）或 `b64_json`（base64图片数据）。 |
 | `-i` / `--input-image` | 否 | 图生图输入图片路径；可传多张（最多5张）。传入该参数即进入编辑模式。 |
 
-## 脚本说明
+## 文件资源说明
 
-| 脚本 | 说明 |
+| 资源 | 说明 |
 |------|------|
-| `scripts/generate_image.js` | Node.js 版本（零依赖，优先使用） |
-| `scripts/generate_image.py` | Python 版本（备选） |
+| [`scripts/generate_image.js`](scripts/generate_image.js) | Node.js 版本（零依赖，优先使用） |
+| [`scripts/generate_image.py`](scripts/generate_image.py) | Python 版本（备选） |
+| [`references/size-guide.md`](references/size-guide.md) | 尺寸与比例控制文档，需要时使用，按需加载 |
 
 ## 图片比例说明
 
