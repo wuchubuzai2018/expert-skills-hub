@@ -152,6 +152,19 @@ node scripts/generate_image.js -p "融合图1和图2的风格" -i ref1.png ref2.
 | [`scripts/generate_image.js`](scripts/generate_image.js) | Node.js 版本（零依赖，优先使用） |
 | [`scripts/generate_image.py`](scripts/generate_image.py) | Python 版本（备选） |
 | [`references/size-guide.md`](references/size-guide.md) | 尺寸与比例控制文档，需要时使用，按需加载 |
+| [`references/batch-template.md`](references/batch-template.md) | 批量生成配置模板，需要批量生成时使用，按需加载 |
+
+## 批量生成
+
+当用户需要一次性生成多张图片（批量生成）时：
+
+1. **加载配置模板**：[references/batch-template.md](references/batch-template.md) — 包含 JSON 配置格式说明和使用示例
+2. **获取/生成 JSON 文件**：用户可自行提供 JSON 文件，或描述需求后 AI 根据需求生成
+3. **预处理 prompt**：确保每个 prompt 开头包含尺寸描述（如"横版 16:9"），必要时补充 `global.size_hint`
+4. **逐个执行**：读取 prompts 数组，逐个执行生成命令，每张完成后反馈结果
+5. **汇总反馈**：完成后告知成功数量、图片路径列表
+
+> 注意：批量任务总时间 = 单张时间(60-300秒) × 图片数量，请提前告知用户预估时长。
 
 ## 图片比例说明
 
