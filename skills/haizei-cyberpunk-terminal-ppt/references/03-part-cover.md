@@ -227,3 +227,79 @@
 | accent 单词不突出 | 没 text-shadow | 双层 text-shadow：0 0 18px + 0 0 36px |
 | 描述太"营销" | 用居中 + 大字 | 改用左对齐 + 2px 绿色 border-left + `/* */` 注释样式 |
 | 英文 subtitle 用了中文 | 不是 italic Space Grotesk | 用 `font-family: var(--font-display); font-style: italic` |
+
+---
+
+## 变体 E：中文主标题版（纯中文 + 单词/短语英文副标题 · 对齐参考站 slide 20/25/34）
+
+> 适用于"以中文为主标题、英文只是单词或短语补充"的章节封面。
+> 与变体 A 的区别：英文 subtitle 从 68px italic 大字 → 改为单词级（`team` / `roadmap / rollout` / `faq / objection handling`），中文标题占主导。
+
+**代表 slide**：
+- 20 · `AI 全栈团队` + `team`
+- 25 · `落地场景 · 常见 Q&A` + `faq / objection handling`
+- 34 · `AI Coding 落地路线图` + `roadmap / rollout`
+
+**HTML 骨架**：
+```html
+<section class="slide" data-kind="part-cover-cn">
+  <!-- 顶部命令行 -->
+  <div class="load-cmd">&gt; ./LOAD --PART=03 --SOURCE=PART_03.MD --TITLE="AI 全栈团队"</div>
+
+  <!-- 主标题（中文 + 中点分隔 + accent 高亮） -->
+  <h1 class="cn-title">
+    <span class="cn">AI</span>
+    <span class="dot">·</span>
+    <span class="cn accent">全栈团队</span>
+  </h1>
+
+  <!-- 英文副标题（单词级 + italic + green glow） -->
+  <div class="en-subtitle">team</div>
+
+  <!-- 描述 -->
+  <div class="cn-desc">/* 客户问工具，真正想问的是：团队怎么变、流程怎么改、结果怎么更稳。三个阶段，不可跳级。 */</div>
+
+  <!-- PRESS 提示 -->
+  <div class="press-hint">&gt; PRESS <kbd>→</kbd> TO CONTINUE <span class="blink">▌</span></div>
+</section>
+```
+
+**CSS**：
+```css
+.part-cover-cn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; height: 100%; gap: 20px;
+}
+.load-cmd { font: 13px/1.5 var(--font-mono); color: var(--green); letter-spacing: 0.5px; }
+.cn-title {
+  font: 700 96px/1.1 var(--font-display); color: var(--text);
+  margin: 0; display: flex; gap: 24px; align-items: baseline; flex-wrap: wrap; justify-content: center;
+}
+.cn-title .dot { color: var(--text); opacity: 0.4; font-weight: 300; font-size: 72px; }
+.cn-title .accent { color: var(--green); text-shadow: 0 0 32px rgba(0,255,156,0.4); }
+.en-subtitle {
+  font: italic 600 56px/1.2 var(--font-display); color: var(--green);
+  text-shadow: 0 0 24px rgba(0,255,156,0.5);
+}
+.en-subtitle.long { font-size: 42px; letter-spacing: 0.5px; }
+.cn-desc {
+  font: 14px/1.7 var(--font-mono); color: var(--text-dim);
+  border-left: 2px solid var(--green); padding-left: 16px; margin-top: 24px; max-width: 760px; text-align: left;
+}
+.press-hint { font: 12px var(--font-mono); color: var(--text-dim); margin-top: 32px; letter-spacing: 1.5px; }
+.press-hint kbd { display: inline-block; padding: 2px 8px; border: 1px solid var(--text-dim); border-radius: 3px; margin: 0 4px; }
+```
+
+**与变体 A 的对比**：
+
+| 维度 | 变体 A（中文 + 英文 subtitle 大字） | 变体 E（中文主导 + 单词副标题）|
+|---|---|---|
+| 中文标题 | 96px 中等占比 | **96px 占主导** |
+| 英文副标题 | **68px italic 大字**（`harness engineering` 完整短语） | **42-56px italic 单词/短语**（`team` / `roadmap / rollout`） |
+| 用途 | 中英并列介绍概念 | 中文为主、英文为补充标签 |
+| 适合章节 | Part 1 / Part 2 概念性章节 | Part 3 / Part 4 实施性章节 |
+
+**注意事项**：
+- 英文副标题超 2 个单词时，加 `.long` 类（42px）保持视觉平衡
+- `·` 中点必须用半角 + 两侧空格，避免挤压
+- 中文与 accent 单词的色彩对比：accent 单词用绿色 + glow，主体中文用白色

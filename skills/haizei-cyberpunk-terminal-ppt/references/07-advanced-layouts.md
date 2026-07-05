@@ -1,44 +1,26 @@
-# 07 · Advanced Layouts（19 种 layout）
+# 07 · Advanced Layouts 速查（高频 8 种）
 
-> **19 种 layout**：8 种高频（含 commandPanel / hubRing / specCanvas / carrierPanel / shotStage / layerCard 9-grid / docCard / discussCard）+ 11 种其他场景。
+> **本文件是高级 layout 的导航 + 高频 8 种的完整模板。**
+> 如需 9-19 基础模式 → [advanced-layouts/02-basic-patterns.md](advanced-layouts/02-basic-patterns.md)
+> 如需 A1-A13 补充模式 + A14-A17 收尾页 → [advanced-layouts/03-supplementary.md](advanced-layouts/03-supplementary.md)
+> 如需收尾页 (致谢/Q&A/CTA/recap/references) → [closing/README.md](closing/README.md)
 
-> 假设你已经在 `<body>` 里复制了 `00-design-system.md` 的"完整基础 HTML 底座"。
+## 高频 8 种 layout 速查
 
-## 速查（19 种 · 按使用频率排序）
+| # | Layout | 用途 | 对齐参考站 slide |
+|---|---|---|---|
+| 1 | **commandPanel + hubRing + laneStack** | AI 调度中枢 + 双泳道对比 | slide 5 |
+| 2 | **specCanvas + stepTrack + foundationBar** | 方法论主链（6 步 + 上下闸口）| slide 10 |
+| 3 | **layerCard 9-grid + intro + side thoughtPanel** | 9 层架构 + 侧栏思考 | slide 17 |
+| 4 | **carrierPanel + channelGrid (A/B/C)** | "在哪里 + 怎么用" 4 通道对比 | slide 12 |
+| 5 | **shotStage + filmstrip** | 截图演示 + 多缩略图切换 | slide 7 |
+| 6 | **stagePanel (split image) + toolCompareGrid** | 双图对比 + 4 工具对比 | slide 8 |
+| 7 | **docCard + bridge + matrixPanel** | 两栏对比 + 中间 ≠ + 4 行矩阵 | slide 30 |
+| 8 | **heroCard + discussCard + footer open floor** | 收尾页（Q&A / 开放讨论）| slide 37 |
 
-| # | Layout | 用途 | 关键样式 |
-|---:|---|---|---|
-| 1 | **commandPanel + dispatchMap + hubRing + laneStack** | 中心调度 + 双泳道对比 | 圆环 hub + 上下堆叠 laneCard + 4 步 loopPanel + › 列表 |
-| 2 | **specCanvas + heroPanel + stepTrack + foundationBar** | 方法论主链（spec-kit 风格）| ghost 字 + positionStack + 6 步 step 链 |
-| 3 | **layerCard 9-grid + intro + side thoughtPanel** | 9 层架构 + 侧栏思考 | 3×3 网格 + folder 装饰 + hl-from/to 标注 |
-| 4 | **carrierPanel + terminalBox + channelGrid + updatePanel** | "在哪里 + 怎么用" 4 通道对比 | 终端 cmd/ok/bad 行 + A/B/C 通道卡 + 4 节点 flow |
-| 5 | **shotStage + filmstrip** | 截图演示 + 多缩略图切换 | topbar + caption + 4 chip 缩略图列表 |
-| 6 | **stagePanel (split image) + toolCompareGrid** | 双图对比 + 4 工具对比 | main+alt 双图 + rank+name+sub+tag+desc+link |
-| 7 | **docCard + bridge + matrixPanel** | 两栏对比 + 中间 ≠ + 4 行矩阵 | docCard + ≠ 桥 + axis 行 |
-| 8 | **heroCard + discussCard + footer open floor** | 收尾页（Q&A / 开放讨论）| hero + discuss + 双 footer |
-| 9 | arch-flow | 架构图 / 数据流 | 多层 row + 连接箭头 |
-| 10 | intro-typ | 中文大字 hero 引言 | 居中 + 大字号 + 装饰边框 |
-| 11 | layer-stack | 9 层 / N 层堆叠 | 横线分隔 + 层级编号 |
-| 12 | loop-evo | 循环 / 演进 | 4 段 + 脉冲 |
-| 13 | repo-tree | 仓库目录树 | monospace + 树状缩进 |
-| 14 | yaml-code | YAML / 配置代码块 | 等宽 + 4 色语法高亮 |
-| 15 | spectrum-page | 全宽 spectrum 大图 | 24 段 + ticks + 状态点 |
-| 16 | note-card-page | 大 note-card 多块 | 4 个并列 note-card |
-| 17 | harness-table | 表格 / Harness 配置 | 表头 + 多行 + 状态色 |
-| 18 | quadrant | 2×2 四象限 | x/y 轴 + 4 区域 |
-| 19 | mode-stack | 模式对比 / 错位堆叠 | 多个列表错位重叠 |
+## 完整 layout 目录（21 种）
 
-> 11 种基础 layout 的代码保留在本文件后半部分（不破坏，向后兼容）。
-
----
-
-# 8 种高频 layout
-
----
-
-# 8 种高频 layout
-
----
+### 8 种高频（本文件展开）
 
 ## 1. commandPanel + dispatchMap + hubRing + laneStack（中心调度 · 对齐 slide 5）
 
@@ -2397,29 +2379,3 @@
 ```
 
 ---
-
-## Checklist
-
-- [ ] **window-chrome / panel / corner / footer 四件套都在**（每页必备）
-- [ ] **slide-corner 内容正确**（PART NN · LABEL 或 SECTION NAME）
-- [ ] 每种 layout 至少 1 个闪烁光标
-- [ ] accent 色不超过 4 种循环
-- [ ] 描述 / 文案 ≤ 3 行（除 spec 步骤外）
-- [ ] 1440×900 视口下不溢出
-
-## 失败模式
-
-| 失败 | 原因 | 修复 |
-|---|---|---|
-| arch-flow 像表格 | 没用 accent 条 / grid | 加 `border-left: 2px solid var(--accent)` |
-| intro-typ 像 PPT 模板 | 居中 + 大字 | 必须有 120px 引号 + 装饰字距 |
-| repo-tree 太密集 | 行距太小 / 字号太大 | `font-size: 13px` + `line-height: 1.7` |
-| yaml-code 看不清 | 没用配色 | 必须 4 色：key=绿 / string=琥珀 / number=粉 / comment=dim |
-| spectrum 没锚点 | 没标当前态 | 加 `◆ CURRENT · 62%` 浮动标签 |
-| quadrant 4 角视觉等重 | 没用 accent 区分 | 4 个象限用 4 色 |
-| **Layout 1 dispatchMap 像 dashboard** | hubRing 没用 dashed 双圈 | 必须 `.ai-hub::before/::after` 双 dashed 内圈 |
-| **Layout 2 specCanvas 像普通 6 步** | stepTrack 缺 foundationBar + closureBar | 必须上下两条 bar + 中间 6 step |
-| **Layout 3 layerCard 像 9-card** | 没有 intro + side thoughtPanel | 必须 intro + 3×3 + side thoughtPanel 三段式 |
-| **Layout 4 carrierPanel 像列表** | terminalBox 没 ✓/✗ 行 | 必须含 `term-ok` / `term-bad` 行 |
-| **Layout 7 docCard 像 2-card** | 没有 bridge ≠ | 必须中间 `.bridge` 含 ≠ + not equal/mutual layer |
-| **Layout 8 closing 像普通 end** | 没有 heroCard + discussCard + 双 footer | 必须分 hero / discuss / foot-left / foot-right 四块 |

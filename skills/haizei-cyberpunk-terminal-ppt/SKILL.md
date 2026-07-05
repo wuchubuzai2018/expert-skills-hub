@@ -64,21 +64,43 @@ description: 生成赛博朋克终端控制台风格的网页 PPT（HTML 单文�
 - ❌ **缺 window-chrome / corner / footer 三件套**（每页必备）
 - ❌ **用 emoji 或彩色圆点代替 `▌` 光标字符**（用 `<span class="blink">▌</span>`）
 
-## references 速查（9 个文件）
+## references 速查（核心 9 + 进阶 6 + 收尾 5）
+
+### 主目录（核心 · 始终加载）
 
 | 文件 | 何时读 | 内容 |
 |---|---|---|
 | [00-design-system.md](references/00-design-system.md) | **第一份必读** | 设计令牌 + window-chrome + panel + corner + footer + line-numbers + 进度条 + 12-col grid |
-| [01-cover.md](references/01-cover.md) | 设计封面 | boot log + 12-col 完整版（speaker box + ASCII 框 + 3 色 legend）+ 3 个变体 |
+| [01-cover.md](references/01-cover.md) | 设计封面 | boot log + 12-col 完整版（speaker box + ASCII 框 + 3 色 legend）+ 5 个变体 |
 | [02-toc.md](references/02-toc.md) | 设计目录 | 12-col featured 全宽卡 + 6/6 / 4/8 错落 + 衬线章节名 + 3 个变体 |
-| [03-part-cover.md](references/03-part-cover.md) | 设计章节封面 | 中心 wrapper（96px 中文 + 68px 英文 subtitle）+ accent 单词 + `/* */` 描述 + 3 个变体 |
+| [03-part-cover.md](references/03-part-cover.md) | 设计章节封面 | 中心 wrapper（96px 中文 + 68px 英文 subtitle）+ accent 单词 + `/* */` 描述 + 5 个变体 |
 | [04-content-pages.md](references/04-content-pages.md) | 设计正文 | **8 种基础 layout**：thesisPanel+stepCard（推荐） / 4-card / 3-card / 2-col / KPI / timeline / roadmap / frameworkCard |
 | [05-components.md](references/05-components.md) | 设计组件 | **11 个组件**：statCard / kpiCard / stepKpi / channelBar / priorityChip / hBar / kpiBar / spectrum / progressRing / accentBadge / noteCard |
 | [06-rendering-tips.md](references/06-rendering-tips.md) | 渲染/调试 | 字体加载 / grid 技巧 / 动画 / 性能 / 调试 |
-| [07-advanced-layouts.md](references/07-advanced-layouts.md) | 设计高级页 | **19 种 layout**：8 种高频（commandPanel / dispatchMap / hubRing / specCanvas / layerCard / carrierPanel / shotStage / docCard）+ 11 种其他 |
+| [07-advanced-layouts.md](references/07-advanced-layouts.md) | 设计高级页（核心） | **8 种高频 layout 完整模板** + nav + Checklist + 失败模式（90K · 拆分后） |
 | [08-roadmap-tile.md](references/08-roadmap-tile.md) | 设计路线图 | roadmap-tile 完整模板（4 列 × N tile）|
 
-## 8 种高频 layout 速查
+### advanced-layouts/ 子目录（进阶 · 按需加载）
+
+| 文件 | 何时读 | 内容 |
+|---|---|---|
+| [advanced-layouts/README.md](references/advanced-layouts/README.md) | 子目录导航 | 渐进式加载策略 + 完整 21 种 layout 目录 |
+| [advanced-layouts/01-basic-patterns.md](references/advanced-layouts/01-basic-patterns.md) | 基础但低频 layout | **9-19 基础模式**：arch-flow / intro-typ / layer-stack / loop-evo / repo-tree / yaml-code / spectrum-page / note-card-page / harness-table / quadrant / mode-stack（18K）|
+| [advanced-layouts/02-supplementary.md](references/advanced-layouts/02-supplementary.md) | 复杂中段内容页 | **A1-A13 补充模式**：part-cover-CN / layerFlowPanel / progressionStrip+denseSplit / transformSideBySide / timelineLadder+antiPattern / roleMatrix 6-grid / qaGrid 4-col / heroThesis+insightTable / stepTabPanel / principle+goldenRule / docCardGrid / qaDual 2x2 / kanbanBacklog+metric（124K）|
+
+### closing/ 子目录（收尾页 · 按需加载）
+
+| 文件 | 何时读 | 内容 |
+|---|---|---|
+| [closing/README.md](references/closing/README.md) | 收尾页导航 | 4 种收尾 layout 速查 + 何时用哪个 |
+| [closing/01-thanks-qa.md](references/closing/01-thanks-qa.md) | PPT 结束时 | **A14 thanksQandA**：致谢大字 + 3 列 Q&A 邀请 |
+| [closing/02-cta-contact.md](references/closing/02-cta-contact.md) | 留资环节 | **A15 ctaAndContact**：主 CTA + 二维码 + 联系方式 grid |
+| [closing/03-recap-summary.md](references/closing/03-recap-summary.md) | 培训场景 | **A16 recapSummary**：5 张 takeaway 卡片 + TL;DR |
+| [closing/04-references-credits.md](references/closing/04-references-credits.md) | 学术演讲 | **A17 referencesAndCredits**：参考资料 + 致谢 + 版权 |
+
+## 21 种 layout 全景速查
+
+### 8 种高频 layout（核心反复出现的模式 · 见 [07-advanced-layouts.md](references/07-advanced-layouts.md)）
 
 | Layout | 用途 | 对齐参考站 slide |
 |---|---|---|
@@ -90,6 +112,49 @@ description: 生成赛博朋克终端控制台风格的网页 PPT（HTML 单文�
 | **stagePanel (split image) + toolCompareGrid** | 双图对比 + 4 工具对比 | slide 8 |
 | **docCard + bridge + matrixPanel** | 两栏对比 + 中间 ≠ + 4 行矩阵 | slide 30 |
 | **heroCard + discussCard + footer open floor** | 收尾页（Q&A / 开放讨论）| slide 37 |
+
+### 9 种基础模式（见 [advanced-layouts/01-basic-patterns.md](references/advanced-layouts/01-basic-patterns.md)）
+
+| # | Layout | 用途 | 对齐 slide |
+|---|---|---|---|
+| 9 | arch-flow | 架构图 / 数据流 | - |
+| 10 | intro-typ | 中文大字 hero 引言 | - |
+| 11 | layer-stack | N 层堆叠 | - |
+| 12 | loop-evo | 循环 / 演进 | - |
+| 13 | repo-tree | 仓库目录树 | - |
+| 14 | yaml-code | YAML / 配置代码块 | - |
+| 15 | spectrum-page | 全宽 spectrum 大图 | - |
+| 16 | note-card-page | 多并列 note-card | - |
+| 17 | harness-table | 表格 / Harness 配置 | - |
+| 18 | quadrant | 2×2 四象限 | - |
+| 19 | mode-stack | 模式对比 / 错位堆叠 | - |
+
+### 13 种补充模式（见 [advanced-layouts/02-supplementary.md](references/advanced-layouts/02-supplementary.md)）
+
+| # | Layout | 用途 | 对齐 slide |
+|---|---|---|---|
+| A1 | part-cover-CN | 中文封面 + 英文副标题大字 | 20 / 25 / 34 |
+| A2 | layerFlowPanel | 5 层架构 + 2x2 Loop + 4 要点 | 18 |
+| A3 | progressionStrip + denseSplit | 4 阶段条 + 6 primitive + 适合/不适合 + 叙事 | 19 |
+| A4 | transformSideBySide | AS-IS/TO-BE + TRANSFORM + Core Formula | 22 |
+| A5 | timelineLadder + antiPattern | T+0/+6M/+18M + KPI + 阶段警告 + 反模式 | 23 |
+| A6 | roleMatrix 6-grid | 2x3 角色卡 + KEEP/SHRINK/AI TAKES/NEW + 公理条 | 24 |
+| A7 | qaGrid 4-col | 4 列问答 + 编号答案 + 对答话术 | 26 |
+| A8 | heroThesis + insightTable | 顶部 hero + 左洞察 + 右表格 | 27 |
+| A9 | stepTabPanel | 落地三步法 tab + 三步深讲 | 28 |
+| A10 | principleCard + goldenRule | 4 哲学 + 9 黄金法则 + CORE INSIGHT | 29 |
+| A11 | docCardGrid | 文档卡（彩边 + 元数据 + tags + CTA） | 31 |
+| A12 | qaDual 2x2 | 2x2 + QUESTIONS/ANSWER 双栏 | 32 / 33 |
+| A13 | kanbanBacklog + metric | 4 列 backlog + 优先级 + 底部 KPI 条 | 35 / 36 |
+
+### 4 种收尾页 layout（见 [closing/](references/closing/)）
+
+| # | Layout | 用途 | 文件 |
+|---|---|---|---|
+| A14 | thanksQandA | 致谢大字 + 3 列 Q&A 邀请 | [closing/01-thanks-qa.md](references/closing/01-thanks-qa.md) |
+| A15 | ctaAndContact | 主 CTA + 二维码 + 联系方式 grid | [closing/02-cta-contact.md](references/closing/02-cta-contact.md) |
+| A16 | recapSummary | 5 张 takeaway 卡片 + TL;DR | [closing/03-recap-summary.md](references/closing/03-recap-summary.md) |
+| A17 | referencesAndCredits | 参考资料 + 致谢 + 版权说明 | [closing/04-references-credits.md](references/closing/04-references-credits.md) |
 
 ## 自包含原则
 
