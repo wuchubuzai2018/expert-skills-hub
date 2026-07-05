@@ -1,6 +1,6 @@
 ---
 name: haizei-agnes-image-gen
-description: 图片生成技能，当用户需要生成图片、视觉信息图、创建图像、编辑/修改/调整已有图片时使用此技能。基于Agnes AI官方API（https://www.agnes-ai.com）的Agnes Image 2.1 Flash模型（agnes-image-2.1-flash）的图片生成服务。专注于高信息密度图像生成，擅长复杂布局、丰富构图、密集元素画面。文生图与图生图（编辑/多图融合）均统一通过/v1/images/generations端点，使用JSON格式请求。关键特性：文生图与图生图均通过extra_body.response_format: b64_json请求Base64输出；图生图通过extra_body.image数组传递输入图片（Data URI Base64）；与gpt-image-2不同的点：单一端点同时支持文生图和图生图；输入/输出统一Base64方式；无显式quality/output_format参数；价格$0.003/张。
+description: 图片生成技能,当用户需要生成图片、视觉信息图、创建图像、编辑已有图片时使用此技能。基于Agnes AI官方API的Agnes Image 2.1 Flash模型（agnes-image-2.1-flash）的图片生成服务
 ---
 
 # 图片生成与编辑（Agnes Image 2.1 Flash）

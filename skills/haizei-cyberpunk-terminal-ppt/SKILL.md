@@ -1,6 +1,6 @@
 ﻿---
 name: haizei-cyberpunk-terminal-ppt
-description: 生成"赛博朋克终端控制台"风格的网页 PPT（HTML 单文件）。设计语言是把 PPT 伪装成正在被解构/调试的开发者控制台：深海军蓝背景 + 霓虹四色光效 + 等宽代码字体 + 闪烁光标 + 终端命令栏 + ASCII 框 + 多章节卡片矩阵。必备 3 件套：window-chrome（IDE 三色圆点 + tab + URL 提示 + REC）+ slide-corner（`[ N / M ] LABEL`）+ line-numbers（左侧 40px 01-30 列）。共 19 种 layout（含 commandPanel / hubRing / specCanvas / layerCard 9-grid / carrierPanel / shotStage / docCard+bridge 等）。典型场景：用户说"做个赛博朋克风的网页 PPT"、"帮我做一份终端风格的演示稿"、"用 cyberpunk terminal 风格讲 xxx"。本 Skill 自带完整设计知识库（references/），所有 layout 给出可直接复制的 HTML 模板，**完全自包含，不依赖任何外部素材**。
+description: 生成"赛博朋克终端控制台"风格的网页 PPT（HTML 单文件）。设计语言是把 PPT 伪装成正在被解构/调试的开发者控制台：深海军蓝背景 + 霓虹四色光效 + 等宽代码字体 + 闪烁光标 + 终端命令栏 + ASCII 框 + 多章节卡片矩阵。典型场景：用户说"做个赛博朋克风的网页 PPT"、"帮我做一份终端风格的演示稿"、"用 cyberpunk terminal 风格讲 xxx"。
 ---
 
 # Cyberpunk Terminal PPT · 完全自包含设计系统
