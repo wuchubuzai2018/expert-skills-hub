@@ -18,6 +18,8 @@
 | wechat-red-envelope-cover-designer | 微信红包封面设计，支持生成封面图、挂件、气泡挂件和封面故事等完整素材套件 | [skills/wechat-red-envelope-cover-designer/SKILL.md](skills/wechat-red-envelope-cover-designer/SKILL.md) |
 | apiyi-gpt-image-2-all-gen | 基于API易平台的gpt-image-2-all模型生图skills,基于国内代理平台API易接口 | [skills/apiyi-gpt-image-2-all-gen/SKILL.md](skills/apiyi-gpt-image-2-all-gen/SKILL.md) |
 | apiyi-gpt-image-2-gen | (推荐)基于API易平台的gpt-image-2官方正式版图片生成与编辑，支持精确尺寸、画质控制与 4K 输出 | [skills/apiyi-gpt-image-2-gen/SKILL.md](skills/apiyi-gpt-image-2-gen/SKILL.md) |
+| haizei-agnes-image-gen | 基于 Agnes AI 官方 API 的图片生成与编辑（文生图/图生图），高信息密度图像生成，擅长复杂布局与密集元素画面，统一 Base64 输入输出 | [skills/haizei-agnes-image-gen/SKILL.md](skills/haizei-agnes-image-gen/SKILL.md) |
+| haizei-cyberpunk-terminal-ppt | 生成"赛博朋克终端控制台"风格的网页 PPT（HTML 单文件），含 IDE 标题栏 / 行号列 / 进度条 / 19 种 layout（commandPanel / hubRing / specCanvas / layerCard 9-grid 等） | [skills/haizei-cyberpunk-terminal-ppt/SKILL.md](skills/haizei-cyberpunk-terminal-ppt/SKILL.md) |
 
 
 ## 🚀 技能安装
