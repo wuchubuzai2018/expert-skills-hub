@@ -8,6 +8,7 @@
 |---|---|---|
 | nano-banana-2-image-gen | 基于 Nano Banana 2 的 AI 图片生成与编辑（文生图 / 图生图），支持 14 种比例与 1K/2K/4K 分辨率 | [skills/nano-banana-2-image-gen/SKILL.md](skills/nano-banana-2-image-gen/SKILL.md) |
 | nano-banana-pro-image-gen | 基于NanoBananaPro的AI 图片生成（文生图 / 图生图编辑），支持多种比例与分辨率 | [skills/nano-banana-pro-image-gen/SKILL.md](skills/nano-banana-pro-image-gen/SKILL.md) |
+| atlas-image-gen | 通过 Atlas Cloud 异步接口生成图片，单次提交后有界轮询结果 | [skills/atlas-image-gen/SKILL.md](skills/atlas-image-gen/SKILL.md) |
 | pdf-to-image-preview | PDF 转图片（逐页导出 PNG/JPG，支持分辨率配置） | [skills/pdf-to-image-preview/SKILL.md](skills/pdf-to-image-preview/SKILL.md) |
 | juejin-article-trends | 掘金热门文章榜单（分类列表 + 热门/最新文章） | [skills/juejin-article-trends/SKILL.md](skills/juejin-article-trends/SKILL.md) |
 | baidu-milan-winter-olympics-2026 | 2026 米兰冬奥会数据（奖牌榜、现场新闻、赛程） | [skills/baidu-milan-winter-olympics-2026/SKILL.md](skills/baidu-milan-winter-olympics-2026/SKILL.md) |
