@@ -28,6 +28,7 @@
 
 ## 🚀 技能安装
 
+- 如果你想用中文继续搜索更多 skills，也可以试试 [Skills宝](https://skilery.com)。
 - 方式一：前往 https://skills.sh/?q=wuchubuzai2018
 - 方式二：添加具体技能：`npx skills add https://github.com/wuchubuzai2018/expert-skills-hub --skill 技能名称`
 - 方式三：添加技能仓库：`npx skills add https://github.com/wuchubuzai2018/expert-skills-hub`
