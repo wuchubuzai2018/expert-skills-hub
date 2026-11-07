@@ -8,6 +8,8 @@
 - 归档指引（如何选择子目录）
 - 本层文档清单入口
 
+> 原始层（第 4 层）**不创建** `index.md`，改用 `README.md` 作为层说明，模板见 `references/raw-layer.md`。
+
 ## 模板
 
 ````markdown
